@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SelectField, SubmitField
 from wtforms.validators import InputRequired
 from flask import Blueprint
-from flask_login import login_required
+from flask_login import login_required, login_user
 
 #HERE THE VIEWS ARE CREATED
 #VIEWS ARE FUNCTIONS RESPONSIBLE FOR HANDLING REQUESTS
@@ -16,6 +16,14 @@ class LoginForm(FlaskForm):
     #Form is sent to template through Jinja2. Some front-end validations
     username = StringField(validators=[InputRequired()])
     password = PasswordField(validators=[InputRequired()])
+    submit = SubmitField('Submit')
+
+class SignupForm(FlaskForm):
+    username = StringField(validators=[InputRequired()])
+    email = StringField(validators=[InputRequired()])
+    password = PasswordField(validators=[InputRequired()])
+    choices = [('role_student', 'Student'), ('role_teacher', 'Teacher'), ('role_admin', 'Administrator')]
+    select_field = SelectField('Select User Role', choices=choices)
     submit = SubmitField('Submit')
 
 #custom page for client-side error
@@ -33,7 +41,11 @@ def index():
     #by default, Flask-Login uses sessions for authentication
     #verify if there's any user information stored in session
     #session is a dictionary that the application uses to store values that are "remembered" beetween requests
-    if session:
+    print(session)
+    session.clear()
+    print(session)
+
+    if login_user:
         return redirect(url_for('main.home'))
     else:
         return redirect(url_for('main.login'))
@@ -52,4 +64,5 @@ def login():
 @main.route('/home')
 @login_required
 def home():
-    return 'LOGADO PAE'
+    form = SignupForm()
+    return render_template('home.html', form=form)
