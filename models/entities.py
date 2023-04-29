@@ -21,13 +21,13 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-
+    
     def verify_password(self, password):
         ''' Use hashing to verify if the password passed through form is correct'''
-        pw_hash = bcrypt.generate_password_hash(password)
-        return bcrypt.check_password_hash(pw_hash, self.password)        
+        #pw_hash = bcrypt.generate_password_hash(password)
+        return bcrypt.check_password_hash(self.password, password)       
     
     #print user name
     def __repr__(self):
