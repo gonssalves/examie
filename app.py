@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_bcrypt import Bcrypt
-from controllers.main import main as main_blueprint
+from controller import main as main_blueprint
 from flask_login import LoginManager
 
 basedir = os.path.abspath(os.path.dirname(__file__))
