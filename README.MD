@@ -1,5 +1,5 @@
 # Trepverter</h1>
-#### The clever comeback or witty response that comes to mind too late, after the conversation has moved on.</h3>
+#### <em>The clever comeback or witty response that comes to mind too late, after the conversation has moved on.<em>
 
 # Configuration</h1>
 You should have Python and virtual environment (preferentially) on your machine.
