@@ -1,7 +1,7 @@
 # Trepverter</h1>
-### The clever comeback or witty response that comes to mind too late, after the conversation has moved on.</h3>
+#### The clever comeback or witty response that comes to mind too late, after the conversation has moved on.</h3>
 
-# Configuration></h1>
+# Configuration</h1>
 You should have Python and virtual environment (preferentially) on your machine.
 * Use <em>pip install -r requirements.txt</em> to install the packages.</p>
 * After the packages are installed, activate the virtual environment with <em>. venv/bin/activate<em/>
