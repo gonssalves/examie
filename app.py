@@ -23,7 +23,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 
 #define the log in view and help prevent user's sessions from being stolen
-login_manager.login_view = 'main.login' 
+login_manager.login_view = 'controller.login' 
 login_manager.session_protection = 'strong' #each request generates and identifier for the user's computer
 
 @login_manager.user_loader
