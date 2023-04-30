@@ -1,5 +1,5 @@
 venv
-__pycache__
 flask_shell.txt
+__pycache__/app.cpython-311.pyc
 controllers/__pycache__/main.cpython-311.pyc
 models/__pycache__/entities.cpython-311.pyc
