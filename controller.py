@@ -66,3 +66,4 @@ def login():
 def home():
     form = SignupForm()
     return render_template('home.html', form=form)
+    print('teste')
