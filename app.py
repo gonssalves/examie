@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_bcrypt import Bcrypt
-from controller import main as main_blueprint
+from controller import controller as controller_blueprint
 from flask_login import LoginManager
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -33,4 +33,4 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 #register the blueprint (blueprints handles the routes) 
-app.register_blueprint(main_blueprint, url_prefix='')
+app.register_blueprint(controller_blueprint, url_prefix='')

@@ -10,7 +10,7 @@ from flask_login import login_required, login_user
 #ASSIGNING A URL TO A VIEW GENERATES A ROUTE
 
 #create blueprint
-main = Blueprint('main', __name__)
+controller = Blueprint('controller', __name__)
 
 class LoginForm(FlaskForm):
     #Form is sent to template through Jinja2. Some front-end validations
@@ -22,21 +22,22 @@ class SignupForm(FlaskForm):
     username = StringField(validators=[InputRequired()])
     email = StringField(validators=[InputRequired()])
     password = PasswordField(validators=[InputRequired()])
+    re_password = PasswordField('Re-enter Password', validators=[InputRequired()])
     choices = [('2', 'Student'), ('3', 'Teacher'), ('1', 'Administrator')]
-    select_field = SelectField('Select User Role', choices=choices)
-    submit = SubmitField('Submit')
+    role = SelectField('Select User Role', choices=choices)
+    submit = SubmitField()
 
 #custom page for client-side error
-@main.errorhandler(404)
+@controller.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
 #custom page for server-side error
-@main.errorhandler(500)
+@controller.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
 
-@main.route('/')
+@controller.route('/')
 def index():
     #by default, Flask-Login uses sessions for authentication
     #verify if there's any user information stored in session
@@ -46,13 +47,13 @@ def index():
     
     #_user_id is added to session if the user is authenticated through login_user() 
     if '_user_id' in session:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('controller.signup'))
     else:
-        return redirect(url_for('main.login'))
+        return redirect(url_for('controller.login'))
 
 #instantiates the form class and invoke function responsible for login validation
 #see that I'm not using request.methods explicitly TODO: Check what validate_on_submit returns (proly just a boolean)
-@main.route('/login', methods=['GET', 'POST'])
+@controller.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -61,9 +62,11 @@ def login():
     return render_template('login.html', form=form)
 
 #TODO: Exclude flask-bootstrap from application and create the other routes
-@main.route('/home')
+@controller.route('/signup', methods=['GET', 'POST'])
 @login_required
-def home():
+def signup():
     form = SignupForm()
-    return render_template('home.html', form=form)
-    print('teste')
+    if form.validate_on_submit():
+        from models.forms import form_signup
+        return form_signup()
+    return render_template('signup.html', form=form)
