@@ -22,7 +22,7 @@ class SignupForm(FlaskForm):
     username = StringField(validators=[InputRequired()])
     email = StringField(validators=[InputRequired()])
     password = PasswordField(validators=[InputRequired()])
-    choices = [('role_student', 'Student'), ('role_teacher', 'Teacher'), ('role_admin', 'Administrator')]
+    choices = [('2', 'Student'), ('3', 'Teacher'), ('1', 'Administrator')]
     select_field = SelectField('Select User Role', choices=choices)
     submit = SubmitField('Submit')
 
@@ -41,11 +41,11 @@ def index():
     #by default, Flask-Login uses sessions for authentication
     #verify if there's any user information stored in session
     #session is a dictionary that the application uses to store values that are "remembered" beetween requests
-    print(session)
-    session.clear()
-    print(session)
 
-    if login_user:
+    session.clear()
+    
+    #_user_id is added to session if the user is authenticated through login_user() 
+    if '_user_id' in session:
         return redirect(url_for('main.home'))
     else:
         return redirect(url_for('main.login'))
