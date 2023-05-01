@@ -1,6 +1,6 @@
 from models.entities import User, Role
 from flask import request, redirect, url_for, flash
-from flask_login import login_user
+from flask_login import login_user  
 from app import db, bcrypt
 from email_validator import validate_email, EmailNotValidError
 
@@ -8,6 +8,7 @@ def auth_login():
     ''' Check if the user exists in the database and if the information submitted is correct.'''
     username = request.form.get('username')
     password = request.form.get('password')
+    remember_me = request.form.get('remember_me')
     
     #check if user is on the database
     user = User.query.filter_by(username=username).first()#returns none if there's no such user
@@ -20,11 +21,15 @@ def auth_login():
 
     if user:
         if user.verify_password(password):
-            login_user(user)#once user is authenticated, he is logged with this function
-            return redirect(url_for('controller.index'))
+            login_user(user, remember_me)#once user is authenticated, he is logged with this function | remember-me can keep the user logged after the browser is closed
+            return redirect(request.args.get('next') or url_for('main.index'))
     flash('Invalid username or password.')
-    return redirect(url_for('controller.login', **req))#**req is used to sent the request to the form, so the user doesn't need to type everything again
+    return redirect(url_for('auth.login', **req))#**req is used to sent the request to the form, so the user doesn't need to type everything again
     #TODO: search about this url_for parameters
+
+def auth_recovery():#TODO: search how to send email, gmail blocked some shit about "less safe apps" 
+    flash('Feature not implemented yet, probably will never be.')
+    return redirect(url_for('auth.login'))
 
 def auth_signup():
     ''' Validate the informations sent and register an user. '''
@@ -45,24 +50,23 @@ def auth_signup():
         email = emailinfo.normalized#
     except EmailNotValidError as e:
         flash(str(e))
-        return redirect(url_for('controller.signup', **req))
+        return redirect(url_for('auth.signup', **req))
 
     if password != re_password:
         flash('Passwords must be the same')
-        return redirect(url_for('controller.signup', **req))
+        return redirect(url_for('auth.signup', **req))
     
     verify_email = User.query.filter_by(email=email).first()
     
     if verify_email:
         flash('Email already exists')
-        return redirect(url_for('controller.signup', **req))
+        return redirect(url_for('auth.signup', **req))
     
     verify_username = User.query.filter_by(username=username).first()
 
     if verify_username:
         flash('User already exists')
-        return redirect(url_for('controller.signup', **req))
-    
+        return redirect(url_for('auth.signup', **req))
     
     password = bcrypt.generate_password_hash(password).decode('utf-8')#generate password hash
 
@@ -76,7 +80,7 @@ def auth_signup():
         db.session.commit()
     except:
         flash('Unable to register user, please try again later')
-        return redirect(url_for('controller.signup', **req))
+        return redirect(url_for('auth.signup', **req))
     
     flash('User created')
-    return redirect(url_for('controller.signup'))
+    return redirect(url_for('auth.signup'))
