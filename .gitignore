@@ -3,3 +3,4 @@ flask_shell.txt
 models/__pycache__/
 __pycache__
 static
+secret.py
