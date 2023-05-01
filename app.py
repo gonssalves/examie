@@ -3,14 +3,18 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_bcrypt import Bcrypt
-from controller import controller as controller_blueprint
 from flask_login import LoginManager
+from views.main import main as view_main
+from views.error import error as view_error
+from views.auth import auth as view_auth
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+from secret import SECRET_KEY
+
 #create the app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'ayofumylu'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 #configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -23,7 +27,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 
 #define the log in view and help prevent user's sessions from being stolen
-login_manager.login_view = 'controller.login' 
+login_manager.login_view = 'auth.login' 
 login_manager.session_protection = 'strong' #each request generates and identifier for the user's computer
 
 @login_manager.user_loader
@@ -33,4 +37,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 #register the blueprint (blueprints handles the routes) 
-app.register_blueprint(controller_blueprint, url_prefix='')
+app.register_blueprint(view_main, url_prefix='')
+app.register_blueprint(view_error, url_prefix='')
+app.register_blueprint(view_auth, url_prefix='')
