@@ -22,6 +22,10 @@
 
 {% endblock %}
 
-{{ wtf.quick_form(form) }}
+{{ wtf.quick_form(form) }} 
+
+<br>
+
+<a href="{{ url_for('auth.password')}}">Forgot Password?</a>
 
 {% endblock %}
