@@ -1,12 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, SubmitField
+from wtforms import StringField, PasswordField, SelectField, BooleanField, SubmitField
 from wtforms.validators import InputRequired, Length, Regexp
 
 class LoginForm(FlaskForm):
     #Form is sent to template through Jinja2. Some front-end validations
     username = StringField(validators=[InputRequired()])
     password = PasswordField(validators=[InputRequired()])
-    submit = SubmitField('Submit')
+    remember_me = BooleanField('Keep me logged in')
+    submit = SubmitField('Log In')
+
+class PasswordForm(FlaskForm):
+    #
+    email = StringField(validators=[InputRequired()])
+    submit = SubmitField('Send Email')
 
 class SignupForm(FlaskForm):
     username = StringField(
@@ -41,4 +47,4 @@ class SignupForm(FlaskForm):
     
     choices = [('Student', 'Student'), ('Teacher', 'Teacher'), ('Admin', 'Administrator')]
     role = SelectField('Select User Role', choices=choices)
-    submit = SubmitField()
+    submit = SubmitField('Sign Up')
