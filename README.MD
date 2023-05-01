@@ -1,5 +1,9 @@
-<h1>Trepverter</h1>
-<h3>The clever comeback or witty response that comes to mind too late, after the conversation has moved on.</h3>
-<p>use <em>pip install -r requirements.txt</em> to install the packages.</p>
-<p>after the packages are installed, activate the virtual environment with <em>. venv/bin/activate<em/>
-<p>while inside the venv, to run the server, use <em>flask --app app run --debug</em> or <em>export FLASK_APP=app</em> and then <em>flask run</em>.
+# Trepverter</h1>
+#### Word definition: <em>The clever comeback or witty response that comes to mind too late, after the conversation has moved on.<em>
+This is an online school exam project create to PWEB class at Federal Institute of Alagoas.
+
+# Configuration</h1>
+You should have Python and virtual environment (preferentially) on your machine.
+* Use <em>pip install -r requirements.txt</em> to install the packages.
+* After the packages are installed, activate the virtual environment with <em>. venv/bin/activate<em/>
+* While inside the venv, to run the server, use <em>flask --app app run --debug</em> or <em>export FLASK_APP=app</em> and then <em>flask run</em>.
