@@ -13,7 +13,7 @@ class Role(db.Model):
 
     #define how Role.query.all() will be print
     def __repr__(self):
-        return f'<ID: {self.id} - Role: {self.name} - Users: {self.users}>'
+        return f'<Role {self.name}>'
 
 class User(db.Model, UserMixin):
     #create the user table
@@ -29,4 +29,4 @@ class User(db.Model, UserMixin):
         return bcrypt.check_password_hash(self.password, password)       
     
     def __repr__(self):
-        return f'<ID: {self.id} - Username: {self.username}>'
+        return f'<User {self.username}>'
