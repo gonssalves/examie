@@ -61,6 +61,7 @@ class Tag(db.Model):
 class Answer(db.Model):
     __tablename__ = 'answers'
     id = db.Column(db.Integer, primary_key=True)
+    
     answerr = db.Column(db.String(), nullable=False)
     correct = db.Column(db.Integer, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
