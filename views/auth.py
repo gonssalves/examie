@@ -29,14 +29,13 @@ def signup():
     return render_template('signup.html', form=form)
 
 @auth.route('/logout')
-@login_required
 def logout():
     logout_user()
     flash('You have been logged out.')
-    return redirect((url_for('main.index')))
+    return redirect((url_for('auth.login')))
 
 @auth.route('/account-recovery', methods=['GET', 'POST'])
-def password():
+def account_recovery():
     from forms import PasswordForm
     form = PasswordForm()
     if form.validate_on_submit():
