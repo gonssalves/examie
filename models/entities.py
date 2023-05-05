@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(), nullable=False)
+    first_access = db.Column(db.Boolean(), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     questions = db.relationship('Question', backref='user')
     exam = db.relationship('Exam', backref='user')
@@ -46,7 +47,7 @@ class Question(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     tags = db.relationship('Tag', backref='question')
     answers = db.relationship('Answer', backref='question')
-    exam_questions = db.relationship('ExamQuestion', backref='exam')
+    questions_exam = db.relationship('ExamQuestion', backref='question')
 
     def show_all():
         ''' Return all the questions '''
