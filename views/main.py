@@ -10,33 +10,30 @@ from flask_login import login_required
 main = Blueprint('main', __name__)
 
 @main.route('/')
+@login_required
 def index():
-    ''' Verify if there's any user information stored in session, if so, redirect for login page. '''
-    
-    #by default, Flask-Login uses sessions for authentication
-    #session is a dictionary that the application uses to store values that are "remembered" beetween requests
-
-    #session.clear()
-    
-    #_user_id is added to session if the user is authenticated through login_user() 
-    if '_user_id' in session:
-        return render_template('index.html')
-    else:
-        return redirect(url_for('auth.login'))
-
-@main.route('/question', methods=['GET', 'POST', 'PUT', 'DELETE'])
+    return render_template('index.html')
+ 
+@main.route('/questions', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
-def question():
-    return render_template('question.html')
+def questions():
+    print(session)
+    return render_template('questions.html')
 
-@main.route('/exam', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@main.route('/exams', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
-def exam():
-    return render_template('exam.html')
+def exams():
+    print(session)
+    return render_template('exams.html')
 
-@main.route('/user', methods=['GET', 'POST', 'PUT', 'DELETE'])
+from login_required import admin_login_required
+@main.route('/users', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
-def user():
-    return render_template('user.html')
+@admin_login_required()
+def users():
+    print(session)
+    from models.entities import User
+    all_users = User.show_all()
+    return render_template('users.html', users=all_users)
 
 
