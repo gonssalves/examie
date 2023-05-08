@@ -24,6 +24,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(), nullable=False)
     first_access = db.Column(db.Boolean(), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
     questions = db.relationship('Question', backref='user')
     exam = db.relationship('Exam', backref='user')
 
@@ -45,6 +46,7 @@ class Question(db.Model):
     answer_type = db.Column(db.String(20), nullable=False)
     creation_date = db.Column(db.Date(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
     tags = db.relationship('Tag', backref='question')
     answers = db.relationship('Answer', backref='question')
     questions_exam = db.relationship('ExamQuestion', backref='question')
@@ -62,7 +64,6 @@ class Tag(db.Model):
 class Answer(db.Model):
     __tablename__ = 'answers'
     id = db.Column(db.Integer, primary_key=True)
-    
     answerr = db.Column(db.String(), nullable=False)
     correct = db.Column(db.Integer, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
@@ -76,6 +77,7 @@ class Exam(db.Model):
     execution_time = db.Column(db.Integer, nullable=False)
     questions_amount = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
     exam_questions = db.relationship('ExamQuestion', backref='exam')
 
 class ExamQuestion(db.Model):
