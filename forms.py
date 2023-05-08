@@ -2,6 +2,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, BooleanField, SubmitField
 from wtforms.validators import InputRequired, Length, Regexp
 
+class AccountRecoveryForm(FlaskForm):
+    #
+    email = StringField(validators=[InputRequired()])
+    submit = SubmitField('Send Email')
+
 class LoginForm(FlaskForm):
     #Form is sent to template through Jinja2. Some front-end validations
     username = StringField(validators=[InputRequired()])
@@ -9,10 +14,16 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log In')
 
-class PasswordForm(FlaskForm):
+class PasswordResetForm(FlaskForm):
     #
-    email = StringField(validators=[InputRequired()])
-    submit = SubmitField('Send Email')
+    password = PasswordField(validators=[InputRequired()])
+    password2 = PasswordField('Re-enter Password', 
+        validators=[
+            InputRequired()
+        
+        ]
+    )
+    submit = SubmitField('Change Password')
 
 class SignupForm(FlaskForm):
     username = StringField(
@@ -38,11 +49,11 @@ class SignupForm(FlaskForm):
             )
         ]
     )
-    re_password = PasswordField('Re-enter Password', 
+    password2 = PasswordField('Re-enter Password', 
         validators=[
             InputRequired(),
             Length(8, 16, message='Passwords must be the same')
-]
+        ]
     )
     
     choices = [('Student', 'Student'), ('Teacher', 'Teacher'), ('Admin', 'Administrator')]
