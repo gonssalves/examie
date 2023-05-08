@@ -1,7 +1,6 @@
 from flask import Blueprint, request, render_template, flash, redirect, url_for
 from flask_login import login_required, logout_user
 
-
 #create blueprint
 auth = Blueprint('auth', __name__)
 
@@ -36,9 +35,19 @@ def logout():
 
 @auth.route('/account-recovery', methods=['GET', 'POST'])
 def account_recovery():
-    from forms import PasswordForm
-    form = PasswordForm()
+    from forms import AccountRecoveryForm
+    form = AccountRecoveryForm()
     if form.validate_on_submit():
         from models.auth import auth_recovery
         return auth_recovery()
     return render_template('password.html', form=form)
+
+@auth.route('/password-reset', methods=['GET', 'POST'])
+@login_required
+def password_reset():
+    from forms import PasswordResetForm
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        from models.auth import auth_reset
+        return auth_reset()
+    return render_template('first_access.html', form=form)
