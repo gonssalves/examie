@@ -17,13 +17,11 @@ def index():
 @main.route('/questions', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def questions():
-    print(session)
     return render_template('questions.html')
 
 @main.route('/exams', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def exams():
-    print(session)
     return render_template('exams.html')
 
 from login_required import admin_login_required
@@ -31,7 +29,6 @@ from login_required import admin_login_required
 @login_required
 @admin_login_required()
 def users():
-    print(session)
     from models.entities import User
     all_users = User.show_all()
     return render_template('users.html', users=all_users)
