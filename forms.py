@@ -42,19 +42,6 @@ class SignupForm(FlaskForm):
             InputRequired(),
         ]
     )
-    password = PasswordField(
-        validators=[
-            InputRequired(), 
-            Length(8, 16, message="Password must be between 8 and 16 characters long"
-            )
-        ]
-    )
-    password2 = PasswordField('Re-enter Password', 
-        validators=[
-            InputRequired(),
-            Length(8, 16, message='Passwords must be the same')
-        ]
-    )
     
     choices = [('Student', 'Student'), ('Teacher', 'Teacher'), ('Admin', 'Administrator')]
     role = SelectField('Select User Role', choices=choices)
