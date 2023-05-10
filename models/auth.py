@@ -19,7 +19,7 @@ def generate_password():
     
     random_password = ''
 
-    for i in range(random_password):
+    for i in range(size):
         random_password += f'{secrets.choice(alphabet)}'
     
     return random_password
@@ -46,7 +46,6 @@ def send_email(email, subject, body):
         email_receiver = email
 
         #Set the subject and body of the email
-        
         em = EmailMessage()
         em['From'] = email_sender
         em['To'] = email_receiver
@@ -77,15 +76,19 @@ def auth_login():
     req.pop('csrf_token')
     req.pop('submit')
 
-    if user:
-        if user.verify_password(password) or password == user.password:
-            if user.first_access:
-                login_user(user, remember=remember_me)
-                return redirect(url_for('auth.password_reset'))
-            login_user(user, remember=remember_me)#once user is authenticated, he is logged with this function | remember-me can keep the user logged after the browser is closed
-            return redirect(request.args.get('next') or url_for('main.index'))
-    flash('Invalid username or password.')
-    return redirect(url_for('auth.login', **req))#**req is used to sent the request to the form, so the user doesn't need to type everything again
+    if not user:
+        flash('Invalid username or password.')
+        return redirect(url_for('auth.login', **req))#**req is used to sent the request to the form, so the user doesn't need to type everything again
+        
+    if not user.verify_password(password) or password == user.password:
+        flash('Invalid username or password.')
+        return redirect(url_for('auth.login', **req))
+    
+    if user.first_access:
+            login_user(user, remember=remember_me)
+            return redirect(url_for('auth.password_reset'))
+    login_user(user, remember=remember_me)#once user is authenticated, he is logged with this function | remember-me can keep the user logged after the browser is closed
+    return redirect(request.args.get('next') or url_for('main.index'))
     #TODO: search about this url_for parameters
 
 def auth_reset():
@@ -122,7 +125,6 @@ def auth_recovery():
 
     if user:
         password = user.password
-
         subject = 'Recovery Account'
         body = f'Use this password to log in: {password}'
 
