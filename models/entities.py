@@ -28,6 +28,9 @@ class User(db.Model, UserMixin):
     questions = db.relationship('Question', backref='user')
     exam = db.relationship('Exam', backref='user')
 
+    def __repr__(self):
+        return f'{self.username}'
+    
     def show_all():
         ''' Return all the users '''
         return User.query.all()
@@ -51,6 +54,9 @@ class Question(db.Model):
     answers = db.relationship('Answer', backref='question')
     questions_exam = db.relationship('ExamQuestion', backref='question')
 
+    def __repr__(self):
+        return f'{self.theme}'
+    
     def show_all():
         ''' Return all the questions '''
         return Question.query.all()
@@ -61,6 +67,9 @@ class Tag(db.Model):
     tag_name = db.Column(db.String(64), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
+    def __repr__(self):
+        return f'{self.tag_name}'
+    
 class Answer(db.Model):
     __tablename__ = 'answers'
     id = db.Column(db.Integer, primary_key=True)
@@ -68,6 +77,7 @@ class Answer(db.Model):
     correct = db.Column(db.Integer, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
+    
 class Exam(db.Model):
     __tablename__ = 'exams'
     id = db.Column(db.Integer, primary_key=True)
