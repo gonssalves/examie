@@ -45,4 +45,4 @@ class SignupForm(FlaskForm):
     
     choices = [('Student', 'Student'), ('Teacher', 'Teacher'), ('Admin', 'Administrator')]
     role = SelectField('Select User Role', choices=choices)
-    submit = SubmitField('Sign Up')
+    submit = SubmitField('Submit')
