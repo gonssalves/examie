@@ -139,23 +139,19 @@ def auth_signup():
     email = request.form.get('email')
     role = request.form.get('role')
 
-    req = request.form.copy()
-    req.pop('csrf_token')
-    req.pop('submit')
+    verify_username = User.query.filter_by(username=username).first()
 
-    email = check_email(email=email, route='auth.signup')
+    if verify_username:
+        flash('User already exists')
+        return redirect(url_for('main.users'))
+    
+    email = check_email(email=email, route='main.users')
     
     verify_email = User.query.filter_by(email=email).first()
     
     if verify_email:
         flash('Email already exists')
-        return redirect(url_for('auth.signup', **req))
-    
-    verify_username = User.query.filter_by(username=username).first()
-
-    if verify_username:
-        flash('User already exists')
-        return redirect(url_for('auth.signup', **req))
+        return redirect(url_for('main.users'))
     
     random_password = generate_password()
 
@@ -163,7 +159,7 @@ def auth_signup():
 
     role = Role.query.filter_by(name=role).first()#search for the role
     
-    new_user = User(username=username, email=email, password=password, role=role)#create object to insert into database
+    new_user = User(username=username, email=email, password=password, first_access = True, role=role)#create object to insert into database
 
     #TODO: lookup for sqlalchemy exceptions, I spent a lot o time trying to figure out why the user wasn't being added, Shell would throw a clean exception
     try:
@@ -171,7 +167,63 @@ def auth_signup():
         db.session.commit()
     except:
         flash('Unable to register user, please try again later')
-        return redirect(url_for('auth.signup', **req))
+        return redirect(url_for('main.users'))
     
+    subject = 'Account Created'
+    body = f'Your account has been created.\n Login: {username} \n Password: {random_password}'
+    send_email(email, subject, body)
+
     flash('User created')
-    return redirect(url_for('auth.signup'))
+    return redirect(url_for('main.users'))
+
+
+def auth_edit(old_user):
+    username = request.form.get('username')
+    email = request.form.get('email')
+    role = request.form.get('role')
+    
+    verify_username = User.query.filter_by(username=username).first()
+
+    if verify_username:
+        if verify_username.id != old_user.id:
+            flash('User already exists')
+            return redirect(url_for('main.users'))
+    
+    email = check_email(email=email, route='main.users')
+    
+    verify_email = User.query.filter_by(email=email).first()
+    
+    if verify_email:
+        if verify_email.id != old_user.id:
+            flash('Email already exists')
+            return redirect(url_for('main.users'))
+    
+    role = Role.query.filter_by(name=role).first()#search for the role
+    
+
+    edit_user = old_user
+
+    edit_user.username=username
+    edit_user.email=email
+    edit_user.role=role
+
+    try:
+        db.session.add(edit_user)
+        db.session.commit()
+    except:
+        flash('Unable to alter user, please try again later')
+        return redirect(url_for('main.users'))
+    
+    flash('User altered')
+    return redirect(url_for('main.users'))
+
+def auth_delete(old_user):
+    try:
+        db.session.delete(old_user)
+        db.session.commit()
+    except:
+        flash('Unable to delete user, please try again later')
+        return redirect(url_for('main.users'))
+    
+    flash('User deleted')
+    return redirect(url_for('main.users'))
