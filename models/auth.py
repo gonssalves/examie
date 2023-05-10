@@ -6,7 +6,62 @@ from email_validator import validate_email, EmailNotValidError
 from email.message import EmailMessage
 import smtplib
 import ssl
+import string
+import secrets
 
+def generate_password():
+    letters = string.ascii_letters
+    digits = string.digits
+    especial_characters = string.punctuation
+    size = 8
+
+    alphabet = letters + digits + especial_characters
+    
+    random_password = ''
+
+    for i in range(random_password):
+        random_password += f'{secrets.choice(alphabet)}'
+    
+    return random_password
+
+def check_email(email, route):
+
+    req = request.form.copy()
+    if 'password' in req: 
+        req.pop('password')
+    req.pop('csrf_token')
+    req.pop('submit')
+
+    try:
+        emailinfo = validate_email(email, check_deliverability=True)#check_deliverability DNS queries are made to check that the domain name in the email address (the part after the @-sign) can receive mail
+        email = emailinfo.normalized#
+        return email
+    except EmailNotValidError as e:
+        flash(str(e))
+        return redirect(url_for(route, **req))
+    
+def send_email(email, subject, body):
+        email_sender = 'contacttrepverter@gmail.com'
+        email_password = 'ipxtsyzonfvriiem'
+        email_receiver = email
+
+        #Set the subject and body of the email
+        
+        em = EmailMessage()
+        em['From'] = email_sender
+        em['To'] = email_receiver
+        em['Subject'] = subject
+        em.set_content(body)
+        
+        # Add SSL (layer of security)
+        context = ssl.create_default_context()
+
+        # Log in and send the email
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            smtp.login(email_sender, email_password)
+            smtp.sendmail(email_sender, email_receiver, em.as_string())
+            return 'idk'
+        
 def auth_login():
     ''' Check if the user exists in the database and if the information submitted is correct.'''
     username = request.form.get('username')
@@ -61,39 +116,17 @@ def auth_recovery():
     req.pop('csrf_token')
     req.pop('submit')
 
-    try:
-        emailinfo = validate_email(email, check_deliverability=True)#check_deliverability DNS queries are made to check that the domain name in the email address (the part after the @-sign) can receive mail
-        email = emailinfo.normalized#
-    except EmailNotValidError as e:
-        flash(str(e))
-        return redirect(url_for('auth.account_recovery', **req))
+    email = check_email(email, 'auth.recovery')
     
     user = User.query.filter_by(email=email).first()
 
     if user:
         password = user.password
-        #Define email sender and receiver
-        email_sender = 'contacttrepverter@gmail.com'
-        email_password = 'ipxtsyzonfvriiem'
-        email_receiver = email
 
-        #Set the subject and body of the email
-        subject = 'Recovery Account!'
+        subject = 'Recovery Account'
         body = f'Use this password to log in: {password}'
 
-        em = EmailMessage()
-        em['From'] = email_sender
-        em['To'] = email_receiver
-        em['Subject'] = subject
-        em.set_content(body)
-        
-        # Add SSL (layer of security)
-        context = ssl.create_default_context()
-
-        # Log in and send the email
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
-            smtp.login(email_sender, email_password)
-            smtp.sendmail(email_sender, email_receiver, em.as_string())
+        send_email(email=email, subject=subject, body=body)
 
     flash('If this email is registered, you received a message. Check your spam box.')
     return redirect(url_for('auth.account_recovery'))
@@ -102,26 +135,13 @@ def auth_signup():
     ''' Validate the informations sent and register an user. '''
     username = request.form.get('username')
     email = request.form.get('email')
-    password = request.form.get('password')
-    password2 = request.form.get('password2')
     role = request.form.get('role')
 
     req = request.form.copy()
-    req.pop('password')
     req.pop('csrf_token')
     req.pop('submit')
 
-    #use email_validator package
-    try:
-        emailinfo = validate_email(email, check_deliverability=True)#check_deliverability DNS queries are made to check that the domain name in the email address (the part after the @-sign) can receive mail
-        email = emailinfo.normalized#
-    except EmailNotValidError as e:
-        flash(str(e))
-        return redirect(url_for('auth.signup', **req))
-
-    if password != password2:
-        flash('Passwords must be the same')
-        return redirect(url_for('auth.signup', **req))
+    email = check_email(email=email, route='auth.signup')
     
     verify_email = User.query.filter_by(email=email).first()
     
@@ -135,7 +155,9 @@ def auth_signup():
         flash('User already exists')
         return redirect(url_for('auth.signup', **req))
     
-    password = bcrypt.generate_password_hash(password).decode('utf-8')#generate password hash
+    random_password = generate_password()
+
+    password = bcrypt.generate_password_hash(random_password).decode('utf-8')#generate password hash
 
     role = Role.query.filter_by(name=role).first()#search for the role
     
