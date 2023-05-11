@@ -14,10 +14,19 @@ main = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
  
-@main.route('/questions', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@main.route('/questions', methods=['GET', 'POST'])
 @login_required
 def questions():
-    return render_template('questions.html')
+    from models.entities import Question
+    from forms import QuestionForm
+
+    all_questions = Question.show_all()
+    form = QuestionForm()
+
+    if form.validate_on_submit():
+        from models.auth import auth_add_question
+        return auth_add_question() 
+    return render_template('questions.html', questions=all_questions, form=form)
 
 @main.route('/exams', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
@@ -25,7 +34,7 @@ def exams():
     return render_template('exams.html')
 
 from login_required import admin_login_required
-@main.route('/users', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@main.route('/users', methods=['GET', 'POST'])
 @login_required
 @admin_login_required()
 def users():
@@ -40,14 +49,14 @@ def users():
         return auth_signup() 
     return render_template('users.html', users=all_users, form=form)
 
-@main.route('/users/<int:user_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@main.route('/users/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_login_required()
 def edit_users(user_id):
     from models.entities import User
     from forms import SignupForm
 
-    user = User.query.filter_by(id=user_id).first()
+    user = User.show_one(user_id)
     form = SignupForm(obj=user)
 
     if form.validate_on_submit():
@@ -55,16 +64,16 @@ def edit_users(user_id):
         return auth_edit(user)
     return render_template('edit_users.html', form=form)
 
-@main.route('/users/<int:user_id>/delete', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@main.route('/users/<int:user_id>/delete', methods=['GET'])
 @login_required
 @admin_login_required()
 def delete_users(user_id):
     from models.entities import User
 
-    user = User.query.filter_by(id=user_id).first()
+    user = User.show_one(user_id)
   
-    from models.auth import auth_delete
-    return auth_delete(user)
+    from models.auth import auth_delete_user
+    return auth_delete_user(user)
 
 
 
