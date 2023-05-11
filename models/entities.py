@@ -35,6 +35,9 @@ class User(db.Model, UserMixin):
         ''' Return all the users '''
         return User.query.all()
     
+    def show_one(user_id):
+        return User.query.get(int(user_id))
+    
     def verify_password(self, password):
         ''' Use hashing to verify if the password passed through form is correct'''
         return bcrypt.check_password_hash(self.password, password)
