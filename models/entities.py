@@ -60,6 +60,9 @@ class Question(db.Model):
     def __repr__(self):
         return f'{self.theme}'
     
+    def show_one(question_id):
+        return Question.query.get(int(question_id))
+    
     def show_all():
         ''' Return all the questions '''
         return Question.query.all()
@@ -71,15 +74,17 @@ class Tag(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
     def __repr__(self):
-        return f'{self.tag_name}'
+        return f'{self.tag_name} | {self.question_id}'
     
 class Answer(db.Model):
     __tablename__ = 'answers'
     id = db.Column(db.Integer, primary_key=True)
     answerr = db.Column(db.String(), nullable=False)
-    correct = db.Column(db.Integer, nullable=False)
+    correct = db.Column(db.Boolean(), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
+    def __repr__(self):
+        return f'{self.answerr} | {self.question_id}'
     
 class Exam(db.Model):
     __tablename__ = 'exams'
@@ -93,6 +98,10 @@ class Exam(db.Model):
     
     exam_questions = db.relationship('ExamQuestion', backref='exam')
 
+    def show_all():
+        ''' Return all the questions '''
+        return Exam.query.all()
+    
 class ExamQuestion(db.Model):
     __tablename__ = 'exam_questions'
     id = db.Column(db.Integer, primary_key=True)
