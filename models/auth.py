@@ -217,7 +217,7 @@ def auth_edit(old_user):
     flash('User altered')
     return redirect(url_for('main.users'))
 
-def auth_delete(old_user):
+def auth_delete_user(old_user):
     try:
         db.session.delete(old_user)
         db.session.commit()
@@ -227,3 +227,11 @@ def auth_delete(old_user):
     
     flash('User deleted')
     return redirect(url_for('main.users'))
+
+def auth_add_question():
+    subject = request.form.get('subject')
+    theme = request.form.get('theme')
+    description = request.form.get('description')
+    level = request.form.get('level')
+    tags = request.form.get('tags')
+    answer_type = request.form.get('answer_type')
