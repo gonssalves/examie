@@ -11,6 +11,15 @@
   <!-- The clever comeback or witty response that comes to mind too late, after the conversation has moved on.    -->
   <!-- Favicon-->
   <link rel="icon" type="image/x-icon" href="../static/assets/favicon.ico" />
+  <style>
+    .form-control {
+      display: block;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
@@ -46,12 +55,170 @@
     <div class="row">
       <div class="col-md-6">
         <h2>QUESTIONS</h2>
-  
+        
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addQuestionModal">
+          Add Question
+        </button>
+
       </div>
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn
+
+  <div class="modal fade" id="addQuestionModal" tabindex="-1" role="dialog" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addQuestionModalLabel">Question Registration</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="POST">
+            {{ form.csrf_token }}
+
+            <div>
+              <label>{{ form.subject.label }}</label>
+              {{ form.subject(class_='form-control') }}    
+            </div>
+            
+            <br>      
+            <div> 
+              <label>{{ form.theme.label }}</label>
+              {{ form.theme(class_='form-control') }}          
+            </div>
+
+            <br>
+            <div>
+              <label>{{ form.description.label }}</label>
+              {{ form.description(class_='form-control') }}          
+            </div>
+
+            <br>
+            <div>
+              <label>{{ form.level.label }}</label>
+              {{ form.level(class_='form-control') }}          
+            </div>
+
+            <br>
+            <div>
+              <label>{{ form.tags.label }}</label>
+              {{ form.tags(class_='form-control') }}          
+            </div>
+
+            <br>
+            <div>
+              <label>{{ form.answer_type.label }}</label>
+              {{ form.answer_type(class_='form-control') }}          
+            </div>
+
+            <br>
+
+            <div class="answer-group" id="answer1" style="display: none;">
+              <label>{{ form.answer1.label }}</label> 
+              {{ form.answer1(class_='form-control')}}
+              <br>
+            </div>
+
+
+            <div class="answer-group" id="answer2" style="display: none;">
+              <label>{{ form.answer2.label }}</label>
+              {{ form.answer2(class_='form-control') }}
+              <br>
+            </div>
+            
+            <div class="answer-group" id="answer3" style="display: none;">
+              <label>{{ form.answer3.label }}</label>
+              {{ form.answer3(class_='form-control') }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="answer4" style="display: none;">
+              <label>{{ form.answer4.label }}</label>
+              {{ form.answer4(class_='form-control') }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="single_right_answer" style="display: none;">
+              <label>{{ form.single_right_answer.label }}</label>
+              {{ form.single_right_answer() }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="multiple_right_answer1" style="display: none;">
+              <p>Select the Right(s) Answer(s)</p>
+              <label>{{ form.multiple_right_answer1.label }}</label>
+              {{ form.multiple_right_answer1() }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="multiple_right_answer2" style="display: none;">
+              <label>{{ form.multiple_right_answer2.label }}</label>
+              {{ form.multiple_right_answer2() }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="multiple_right_answer3" style="display: none;">
+              <label>{{ form.multiple_right_answer3.label }}</label>
+              {{ form.multiple_right_answer3() }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="multiple_right_answer4" style="display: none;">
+              <label>{{ form.multiple_right_answer4.label }}</label>
+              {{ form.multiple_right_answer4() }}
+              <br>
+            </div>
+
+            <div class="answer-group" id="true_or_false_answer" style="display: none;">
+              <label>{{ form.true_or_false_answer.label }}</label>
+              {{ form.true_or_false_answer() }}
+              <br>
+            </div>
+            
+            <div>
+              {{ form.submit(class_='btn btn-secondary') }}          
+            </div>
+
+        
+
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#answer_type').change(function() {
+      var selectedOption = $(this).val();
+      $('.answer-group').hide(); // Hide all input groups
+
+      // Show inputs based on selected option
+      if (selectedOption === 'sc') {
+        $('#answer1').show();
+        $('#answer2').show();
+        $('#answer3').show();
+        $('#answer4').show();
+        $('#single_right_answer').show();
+      } else if (selectedOption === 'mc') {
+        $('#answer1').show();
+        $('#answer2').show();
+        $('#answer3').show();
+        $('#answer4').show();
+        $('#multiple_right_answer1').show();
+        $('#multiple_right_answer2').show();
+        $('#multiple_right_answer3').show();
+        $('#multiple_right_answer4').show();
+      } else if (selectedOption == 'tf'){
+        $('#true_or_false_answer').show();
+      }
+    });
+  });
+</script>
 
