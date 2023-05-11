@@ -1,4 +1,4 @@
-from models.entities import User, Role
+from models.entities import User, Role, Answer, Tag, Question
 from flask import request, redirect, url_for, flash, session
 from flask_login import login_user, current_user
 from app import db, bcrypt, mail
@@ -8,6 +8,7 @@ import smtplib
 import ssl
 import string
 import secrets
+import datetime
 
 def generate_password():
     letters = string.ascii_letters
@@ -235,3 +236,104 @@ def auth_add_question():
     level = request.form.get('level')
     tags = request.form.get('tags')
     answer_type = request.form.get('answer_type')
+    tags = request.form.get('tags')
+    list_tags = tags.split()
+    creation_date = datetime.date.today()
+
+    new_question = Question(subject=subject, theme=theme, description=description, level=level, answer_type=answer_type, creation_date=creation_date,user_id=current_user.id)
+
+    for tag in list_tags:
+        new_tag = Tag(tag_name=tag, question=new_question)
+        db.session.add(new_tag)
+
+    if answer_type == 'op':
+        db.session.add(new_question)
+        db.session.commit()
+    elif answer_type == 'mc':
+        answer1 = request.form.get('answer1')
+        answer2 = request.form.get('answer2')
+        answer3 = request.form.get('answer3')
+        answer4 = request.form.get('answer4')
+
+        multiple_right_answer1 = request.form.get('answer1')
+        multiple_right_answer2 = request.form.get('answer2')
+        multiple_right_answer3 = request.form.get('answer3')
+        multiple_right_answer4 = request.form.get('answer4')
+
+        new_answer1 = Answer(answer=answer1, correct=multiple_right_answer1, question=new_question)
+
+        new_answer2 = Answer(answer=answer2, correct=multiple_right_answer2, question=new_question)
+
+        new_answer3 = Answer(answer=answer3, correct=multiple_right_answer3, question=new_question)
+
+        new_answer4 = Answer(answer=answer4, correct=multiple_right_answer4, question=new_question)
+
+        try:
+            db.session.add_all([new_question, new_answer1, new_answer2, new_answer3, new_answer4])
+            db.session.commit()
+        except:
+            print('here1')
+
+            flash('Unable to add question, please try again later')
+            return redirect(url_for('main.questions'))
+        
+    elif answer_type == 'sc':
+        answer1 = request.form.get('answer1')
+        answer2 = request.form.get('answer2')
+        answer3 = request.form.get('answer3')
+        answer4 = request.form.get('answer4')
+
+        answer1_correct = (True if 'Answer1' in single_right_answer else False)
+        answer2_correct = (True if 'Answer2' in single_right_answer else False)
+        answer3_correct = (True if 'Answer3' in single_right_answer else False)
+        answer4_correct = (True if 'Answer4' in single_right_answer else False)
+
+        single_right_answer = request.form.get('single_right_answer')
+
+        new_answer1 = Answer(answer=answer1, correct=answer1_correct, question=new_question)
+
+        new_answer2 = Answer(answer=answer2, correct=answer2_correct, question=new_question)
+
+        new_answer3 = Answer(answer=answer3, correct=answer3_correct, question=new_question)
+
+        new_answer4 = Answer(answer=answer4, correct=answer4_correct, question=new_question)
+
+        try:
+            db.session.add_all([new_question, new_answer1, new_answer2, new_answer3, new_answer4])
+            db.session.commit()
+        except:
+            print('here2')
+
+            flash('Unable to add question, please try again later')
+            return redirect(url_for('main.questions'))
+
+    elif answer_type == 'tf':
+        true_or_false_answer = request.form.get('true_or_false_answer') 
+        true_or_false_answer = bool(true_or_false_answer)
+
+        new_answer = Answer(answerr='tf', correct=true_or_false_answer, question=new_question)
+
+        try:
+            db.session.add_all([new_question, new_answer])
+            db.session.commit()
+        except:
+            print('here3')
+            flash('Unable to add question, please try again later')
+            return redirect(url_for('main.questions'))
+
+    flash('Question created')
+    return redirect(url_for('main.questions'))
+
+def auth_delete_question(old_question):
+    try:
+        db.session.delete(old_question)
+        db.session.commit()
+    except:
+        flash('Unable to delete question, please try again later')
+        return redirect(url_for('main.questions'))
+    
+    flash('Question deleted')
+    return redirect(url_for('main.questions'))
+
+def auth_edit_question(old_question):
+    return 'feature not implemented yet'
