@@ -74,7 +74,7 @@ class Tag(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
     def __repr__(self):
-        return f'{self.tag_name} | {self.question_id}'
+        return f'{self.tag_name}'
     
 class Answer(db.Model):
     __tablename__ = 'answers'
@@ -83,8 +83,8 @@ class Answer(db.Model):
     correct = db.Column(db.Boolean(), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
-    def __repr__(self):
-        return f'{self.answerr} | {self.question_id}'
+    # def __repr__(self):
+    #     return f'{self.answerr} | {self.question_id}'
     
 class Exam(db.Model):
     __tablename__ = 'exams'
