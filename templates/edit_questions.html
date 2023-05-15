@@ -61,7 +61,7 @@
           </div>
         {% endfor %}
         <h2>QUESTIONS</h2>
-          <form method="POST">
+          <form method="POST" action="{{ url_for('main.edit_questions') }}">
 
             {{ form.csrf_token }}
 
