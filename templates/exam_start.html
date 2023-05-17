@@ -1,0 +1,129 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <title>Trepverter - Exam Application System</title>
+  <!-- The clever comeback or witty response that comes to mind too late, after the conversation has moved on.    -->
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="../static/assets/favicon.ico" />
+  <style>
+    .form-control {
+      display: block;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Trepverter</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('main.index')}}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('main.questions')}}">Questions</a>
+          </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="{{url_for('main.exams')}}">Exams</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('main.users')}}">Users</a>
+          </li>
+        <li class="nav-item">
+          <a class="nav-link" style = "color: red" href="{{url_for('auth.logout')}}">Logout</a>
+        </li>
+        
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-16">
+        {% for message in get_flashed_messages() %}
+          <div class="alert alert-warning">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{ message }}
+          </div>
+        {% endfor %}
+
+        <h2>EXAM {{ exam_id }}</h2>
+          <h4><span id="countdown"></span></h4><br>
+          <form method="POST" action="{{ url_for('main.exams_start', exam_id=exam_id) }}">
+            {{ form.csrf_token }}
+            {% for exam_question in exam_questions %}
+            <div style="border: solid black 1px;">
+              <br>
+              <h2>{{ loop.index }}º {{ exam_question.question_rel.description }}</h2>
+              <ul>
+                {% if exam_question.question_rel.answer_type == 'op' %}
+                  {{ form.open_answer(style="width: 1040px;", cols="30", rows="5") }}
+                  <br><br>
+                {% else %}
+                  {% for answer in exam_question.question_rel.answers %}
+                    {% if exam_question.question_rel.answer_type == 'tf' %}
+                      <input type="radio" name="answer{{ exam_question.id }}" value="true"> True
+                      <input type="radio" name="answer{{ exam_question.id }}" value="false"> False
+                      <br><br>
+                    {% elif exam_question.question_rel.answer_type == 'mc' %}
+                      <ul>
+                        {{ form.multiple_right_answer(value="true")}} {{ answer.answerr }}
+                      </ul>
+                    {% else %}
+                      <ul>
+                        <input type="radio" name="answer{{ exam_question.id }}" value="{{ answer.id }}"> {{ answer.answerr }}
+                      </ul>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </ul>
+            </div>
+          {% endfor %}
+              <br>
+        {{ form.submit(class='btn btn-secondary')}}
+
+<script>
+  // Função para atualizar a contagem regressiva
+  function updateCountdown() {
+    var countdownElement = document.getElementById('countdown');
+    var timeInSeconds = '{{ exam.execution_time }}' * 60;  // Converter minutos para segundos
+
+      var intervalId = setInterval(function() {
+      var hours = Math.floor(timeInSeconds / 3600);
+      var minutes = Math.floor((timeInSeconds % 3600) / 60);
+      var seconds = timeInSeconds % 60;
+
+      var formattedTime = hours.toString().padStart(2, '0') + ':' +
+                          minutes.toString().padStart(2, '0') + ':' +
+                          seconds.toString().padStart(2, '0');
+
+      countdownElement.textContent = formattedTime;
+
+      if (timeInSeconds <= 0) {
+        clearInterval(intervalId);
+        // Executar ação quando a contagem regressiva terminar
+      } else {
+        timeInSeconds--;
+      }
+    }, 1000);  // Atualizar a cada 1 segundo (1000 milissegundos)
+  }
+
+  // Chamar a função de atualização da contagem regressiva ao carregar a página
+  window.onload = updateCountdown;
+</script>
+        
+        
