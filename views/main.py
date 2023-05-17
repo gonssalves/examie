@@ -3,6 +3,8 @@ from flask import Blueprint, request
 from flask_login import login_required
 from login_required import admin_login_required
 
+
+
 #HERE THE VIEWS ARE CREATED
 #VIEWS ARE FUNCTIONS RESPONSIBLE FOR HANDLING REQUESTS
 #ASSIGNING A URL TO A VIEW GENERATES A ROUTE
@@ -25,23 +27,6 @@ def questions():
     form = QuestionForm()
 
     if request.method == 'POST':
-        from models.auth import auth_add_question
-        return auth_add_question() 
-
-    return render_template('questions.html', questions=all_questions, form=form)
-
-@main.route('/questions/create', methods=['GET', 'POST'])
-@login_required
-def questions_create():
-    from models.entities import Question
-    from forms import QuestionForm
-
-    all_questions = Question.show_all()
-    form = QuestionForm()
-
-    print('aaaa')
-    if form.validate_on_submit():
-        print('bbb')
         from models.auth import auth_add_question
         return auth_add_question() 
 
@@ -71,22 +56,50 @@ def edit_questions(question_id):
     if form.validate_on_submit():
         from models.auth import auth_edit_question
         return auth_edit_question(question)
-    return render_template('edit_questions.html', form=form)
+    return render_template('edit_questions.html', form=form, question_id=question_id)
 
 @main.route('/exams', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def exams():
-    from models.entities import Exam
+    from models.entities import Exam, Question
     from forms import ExamForm
 
-    all_questions = Exam.show_all()
+    all_exams = Exam.show_all()
+    all_questions = Question.show_all()
     form = ExamForm()
 
     if request.method == 'POST':
-        from models.auth import auth_add_question
-        return auth_add_question() 
+        from models.auth import auth_add_exam
+        return auth_add_exam() 
 
-    return render_template('exams.html', exams=all_questions, form=form)
+    return render_template('exams.html', exams=all_exams, all_questions=all_questions, form=form)
+
+@main.route('/exams/<int:exam_id>/delete', methods=['GET'])
+@login_required
+@admin_login_required()
+def delete_exams(exam_id):
+    from models.entities import Exam
+
+    exam = Exam.show_one(exam_id)
+  
+    from models.auth import auth_delete_exam
+    return auth_delete_exam(exam)
+
+@main.route('/exams/<int:exam_id>', methods=['GET', 'POST'])
+@login_required
+@admin_login_required()
+def edit_exams(exam_id):
+    from models.entities import Exam
+    from forms import ExamForm
+
+    exam = Exam.show_one(exam_id)
+    form = ExamForm(obj=exam)
+
+    if form.validate_on_submit():
+        from models.auth import auth_edit_exam
+        return auth_edit_exam(exam)
+    return render_template('edit_exams.html', form=form, exam_id=exam_id)
+
 
 @main.route('/users', methods=['GET', 'POST'])
 @login_required
