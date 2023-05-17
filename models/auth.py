@@ -1,7 +1,7 @@
 from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion
 from flask import request, redirect, url_for, flash, session
 from flask_login import login_user, current_user
-from app import db, bcrypt, mail
+from app import db, bcrypt, mail, cache
 from email_validator import validate_email, EmailNotValidError
 from email.message import EmailMessage
 import smtplib
@@ -257,18 +257,16 @@ def auth_add_question():
         answer3 = request.form.get('answer3')
         answer4 = request.form.get('answer4')
 
-        multiple_right_answer1 = request.form.get('answer1')
-        multiple_right_answer2 = request.form.get('answer2')
-        multiple_right_answer3 = request.form.get('answer3')
-        multiple_right_answer4 = request.form.get('answer4')
-
-        new_answer1 = Answer(answerr=answer1, correct=multiple_right_answer1, question=new_question)
-
-        new_answer2 = Answer(answerr=answer2, correct=multiple_right_answer2, question=new_question)
-
-        new_answer3 = Answer(answerr=answer3, correct=multiple_right_answer3, question=new_question)
-
-        new_answer4 = Answer(answerr=answer4, correct=multiple_right_answer4, question=new_question)
+        answer1_correct = (True if 'multiple_right_answer1' in request.form else False)
+        answer2_correct = (True if 'multiple_right_answer2' in request.form else False)
+        answer3_correct = (True if 'multiple_right_answer3' in request.form else False)
+        answer4_correct = (True if 'multiple_right_answer4' in request.form else False)
+        
+    
+        new_answer1 = Answer(answerr=answer1, correct=answer1_correct, question=new_question)
+        new_answer2 = Answer(answerr=answer2, correct=answer2_correct, question=new_question)
+        new_answer3 = Answer(answerr=answer3, correct=answer3_correct, question=new_question)
+        new_answer4 = Answer(answerr=answer4, correct=answer4_correct, question=new_question)
 
         try:
             db.session.add_all([new_question, new_answer1, new_answer2, new_answer3, new_answer4])
@@ -323,6 +321,7 @@ def auth_add_question():
             flash('Unable to add question, please try again later')
             return redirect(url_for('main.questions'))
 
+    cache.clear()
     flash('Question created')
     return redirect(url_for('main.questions'))
 
@@ -334,6 +333,7 @@ def auth_delete_question(old_question):
         flash('Unable to delete question, please try again later')
         return redirect(url_for('main.questions'))
     
+    cache.clear()
     flash('Question deleted')
     return redirect(url_for('main.questions'))
 
@@ -375,3 +375,14 @@ def auth_add_exam():
     return redirect(url_for('main.exams'))
 
     return str(questions)
+
+def auth_delete_exam(old_exam):
+    try:
+        db.session.delete(old_exam)
+        db.session.commit()
+    except:
+        flash('Unable to delete exam, please try again later')
+        return redirect(url_for('main.exams'))
+    
+    flash('Exam deleted')
+    return redirect(url_for('main.exams'))
