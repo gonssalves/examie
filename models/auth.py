@@ -1,4 +1,4 @@
-from models.entities import User, Role, Answer, Tag, Question
+from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion
 from flask import request, redirect, url_for, flash, session
 from flask_login import login_user, current_user
 from app import db, bcrypt, mail
@@ -9,6 +9,7 @@ import ssl
 import string
 import secrets
 import datetime
+
 
 def generate_password():
     letters = string.ascii_letters
@@ -238,10 +239,10 @@ def auth_add_question():
     answer_type = request.form.get('answer_type')
     tags = request.form.get('tags')
     list_tags = tags.split()
-    #return str(list_tags)
+ 
     creation_date = datetime.date.today()
 
-    new_question = Question(subject=subject, theme=theme, description=description, level=level, answer_type=answer_type, creation_date=creation_date,user_id=current_user.id)
+    new_question = Question(subject=subject, theme=theme, description=description, level=level, answer_type=answer_type, creation_date=creation_date, user_id=current_user.id)
 
     for tag in list_tags:
         new_tag = Tag(tag_name=tag, question=new_question)
@@ -338,3 +339,39 @@ def auth_delete_question(old_question):
 
 def auth_edit_question(old_question):
     return 'feature not implemented yet'
+
+def auth_add_exam():
+    if not 'question_id' in request.form:
+        req = request.form.copy()
+        req.pop('csrf_token')
+
+        flash('Select at least one question')
+        return redirect(url_for('main.exams', **req))   
+    
+    opening_date = request.form.get('opening_date')
+    execution_time = request.form.get('execution_time')
+    questions = request.form.getlist('question_id')
+    questions_amount = len(questions)
+
+    creation_date = datetime.date.today()
+
+    opening_date = datetime.datetime.strptime(opening_date, '%Y-%m-%d').date()
+
+    
+    new_exam = Exam(creation_date=creation_date, opening_date=opening_date, execution_time=execution_time, questions_amount=questions_amount, user_id=current_user.id)
+    
+    for question in questions:
+        new_exam_question = ExamQuestion(exam=new_exam, question_id=int(question))
+        db.session.add(new_exam_question)
+
+    try:
+        db.session.add_all([new_exam, new_exam_question])
+    except:
+        flash('Unable to create exam, please try again later')
+        return redirect(url_for('main.exams'))
+    
+    db.session.commit()
+    flash('Exam created')
+    return redirect(url_for('main.exams'))
+
+    return str(questions)
