@@ -26,15 +26,17 @@ class User(db.Model, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     questions = db.relationship('Question', backref='user')
-    exam = db.relationship('Exam', backref='user')
+    exams = db.relationship('Exam', backref='user')
 
     def __repr__(self):
         return f'{self.username}'
     
+    @staticmethod
     def show_all():
         ''' Return all the users '''
         return User.query.all()
     
+    @staticmethod
     def show_one(user_id):
         return User.query.get(int(user_id))
     
@@ -55,18 +57,22 @@ class Question(db.Model):
 
     tags = db.relationship('Tag', backref='question')
     answers = db.relationship('Answer', backref='question')
-    questions_exam = db.relationship('ExamQuestion', backref='question')
+    exam_questions_rel = db.relationship('ExamQuestion', backref='question_rel')    # tags = db.relationship('Tag', backref='question')
+    # answers = db.relationship('Answer', backref='question')
+    # exam_questions = db.relationship('ExamQuestion', backref='question_rel')
 
     def __repr__(self):
         return f'{self.theme}'
     
+    @staticmethod
     def show_one(question_id):
         return Question.query.get(int(question_id))
     
+    @staticmethod
     def show_all():
         ''' Return all the questions '''
         return Question.query.all()
-    
+        
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
@@ -94,12 +100,21 @@ class Exam(db.Model):
     execution_time = db.Column(db.Integer, nullable=False)
     questions_amount = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
-    exam_questions = db.relationship('ExamQuestion', backref='exam')
 
-    def show_one(exam_id):
-        return Question.query.get(int(exam_id))
+    exam_questions = db.relationship('ExamQuestion', back_populates='exam')     
     
+    @staticmethod
+    def show_one(exam_id):
+        x = Exam.query.get(int(exam_id))
+        print(x.exam_questions)
+        return Exam.query.get(int(exam_id))
+    
+    @staticmethod
+    def show_opening_date(exam_id):
+        exam =  Exam.query.get(int(exam_id))
+        return exam.opening_date
+    
+    @staticmethod
     def show_all():
         ''' Return all the questions '''
         return Exam.query.all()
@@ -109,6 +124,8 @@ class ExamQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    
+    exam = db.relationship('Exam', back_populates='exam_questions')
 
     def __repr__(self):
         return f'{self.exam_id} {self.question_id}'
