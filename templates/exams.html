@@ -56,12 +56,11 @@
             <thead>
                 <tr>
                     <th scope="col">EXAM ID</th>
-                    
                     <th scope="col">USER ID</th>
-                    <th scope="col">OPENING TIME</th>
-                    <th scope="col">ENDING TIME</th>
-                    <th scope="col">EXECUTION TIME</th>
                     <th scope="col">CREATION DATE</th>
+                    <th scope="col">OPENING DATE</th>
+                    <th scope="col">EXECUTION TIME</th>
+                    <th scope="col">QUESTIONS AMOUNT</th>
                 </tr>
             </thead>
     
@@ -71,11 +70,12 @@
                 <tr>
                     <td>{{exam.id}}</td>
                     <td>{{exam.user.id}}</td>
-                    <td>{{exam.opening_time}}</td>
-                    <td>{{exam.ending_time}}</td>
                     <td>{{exam.creation_date}}</td>
-                    <td><button type="button" onclick="location.href='users/{{user.id}}'" class="btn btn-primary">Edit</button></td>
-                    <td><button data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-danger" data-user-id="{{ user.id }}">Delete</button></td>
+                    <td>{{exam.opening_date}}</td>
+                    <td>{{exam.execution_time}}</td>
+                    <td>{{exam.questions_amount}}</td>
+                    <td><button type="button" onclick="location.href='exams/{{exam.id}}'" class="btn btn-primary">Edit</button></td>
+                    <td><button data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-danger" data-exam-id="{{ exam.id }}">Delete</button></td>
                 </tr>
             {% endfor %}
             
@@ -96,7 +96,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteModalLabel">Are you sure you want to delete this user?</h5>
+          <h5 class="modal-title" id="deleteModalLabel">Are you sure you want to delete this exam?</h5>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" id="deleteButton">Yes</button>
@@ -108,7 +108,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Exam Creation</h5>
@@ -117,7 +117,37 @@
         </button>
       </div>
       <div class="modal-body">
-        {{ wtf.quick_form(form) }} 
+        <form method="POST" action="{{ url_for('main.exams') }}">
+
+          {{ form.csrf_token }}
+
+          <div>
+            <label>{{ form.opening_date.label }}</label>
+            {{ form.opening_date(class_='form-control') }}    
+          </div>
+          
+          <br>
+
+          <div>
+            <label>{{ form.execution_time.label }}</label>
+            {{ form.execution_time(class_='form-control', placeholder='E.g. 120') }}          
+          </div>
+
+          <br>
+
+          <div>
+          {% for question in all_questions %}
+          <input type="checkbox" name="question_id" value={{question.id}}> <b>Subject:</b> {{question.subject}} <b>Theme:</b> {{question.theme}} <b>Difficulty  :</b> {{question.level}} <b>Answer Type</b> {{question.answer_type}}
+          <br> <br> 
+                                                                                                                                                                                       
+          {% endfor %}
+          </div>
+
+          <br>
+          
+          <div>
+            {{ form.submit(class='btn btn-secondary')}}
+          </div>
       </div>
     </div>
   </div>
@@ -130,20 +160,20 @@
       // Obtém o botão que acionou o modal
       var button = $(event.relatedTarget);
       
-      // Obtém o ID do usuário do atributo 'data-user-id'
-      var userId = button.data('user-id');
+      // Obtém o ID do usuário do atributo 'data-exam-id'
+      var examId = button.data('exam-id');
       
-      // Atualiza o valor do atributo 'data-user-id' do botão de exclusão no modal
-      $('#deleteButton').data('user-id', userId);
+      // Atualiza o valor do atributo 'data-exam-id' do botão de exclusão no modal
+      $('#deleteButton').data('exam-id', examId);
   });
   
   // Captura o evento de clique no botão de exclusão dentro do modal
   $('#deleteButton').click(function () {
-      // Obtém o ID do usuário do atributo 'data-user-id'
-      var userId = $(this).data('user-id');
+      // Obtém o ID do usuário do atributo 'data-exam-id'
+      var examId = $(this).data('exam-id');
       
       // Redireciona para a página de exclusão com o ID do usuário na URL
-      window.location.href = 'users/' + userId + '/delete';
+      window.location.href = 'exams/' + examId + '/delete';
   });
 </script>
 
