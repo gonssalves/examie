@@ -90,14 +90,16 @@ class Exam(db.Model):
     __tablename__ = 'exams'
     id = db.Column(db.Integer, primary_key=True)
     creation_date = db.Column(db.Date(), nullable=False)
-    opening_time = db.Column(db.String(10), nullable=False)
-    closing_time = db.Column(db.String(10), nullable=False)
+    opening_date = db.Column(db.Date, nullable=False)
     execution_time = db.Column(db.Integer, nullable=False)
     questions_amount = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
     exam_questions = db.relationship('ExamQuestion', backref='exam')
 
+    def show_one(exam_id):
+        return Question.query.get(int(exam_id))
+    
     def show_all():
         ''' Return all the questions '''
         return Exam.query.all()
@@ -107,3 +109,6 @@ class ExamQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+
+    def __repr__(self):
+        return f'{self.exam_id} {self.question_id}'
