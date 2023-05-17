@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, session
-from flask import Blueprint, request
-from flask_login import login_required
-from login_required import admin_login_required
+from flask import Blueprint, request, flash
+from flask_login import login_required, current_user
+from login_required import admin_login_required, admin_teacher_login_required
+import time
 
 
 
@@ -19,22 +20,23 @@ def index():
  
 @main.route('/questions', methods=['GET', 'POST'])
 @login_required
+@admin_teacher_login_required()
 def questions():
-    from models.entities import Question
+    from cache import get_questions
     from forms import QuestionForm
 
-    all_questions = Question.show_all()
+    all_questions = get_questions()
     form = QuestionForm()
 
     if request.method == 'POST':
         from models.auth import auth_add_question
-        return auth_add_question() 
+        return auth_add_question()
 
     return render_template('questions.html', questions=all_questions, form=form)
 
 @main.route('/questions/<int:question_id>/delete', methods=['GET'])
 @login_required
-@admin_login_required()
+@admin_teacher_login_required()
 def delete_questions(question_id):
     from models.entities import Question
 
@@ -45,7 +47,7 @@ def delete_questions(question_id):
 
 @main.route('/questions/<int:question_id>', methods=['GET', 'POST'])
 @login_required
-@admin_login_required()
+@admin_teacher_login_required()
 def edit_questions(question_id):
     from models.entities import Question
     from forms import QuestionForm
@@ -62,9 +64,13 @@ def edit_questions(question_id):
 @login_required
 def exams():
     from models.entities import Exam, Question
+    all_exams = Exam.show_all()
+
+    if str(current_user.role) == 'Student':
+        return render_template('exams_student.html', exams=all_exams)
+
     from forms import ExamForm
 
-    all_exams = Exam.show_all()
     all_questions = Question.show_all()
     form = ExamForm()
 
@@ -74,9 +80,10 @@ def exams():
 
     return render_template('exams.html', exams=all_exams, all_questions=all_questions, form=form)
 
+
 @main.route('/exams/<int:exam_id>/delete', methods=['GET'])
 @login_required
-@admin_login_required()
+@admin_teacher_login_required()
 def delete_exams(exam_id):
     from models.entities import Exam
 
@@ -87,7 +94,7 @@ def delete_exams(exam_id):
 
 @main.route('/exams/<int:exam_id>', methods=['GET', 'POST'])
 @login_required
-@admin_login_required()
+@admin_teacher_login_required()
 def edit_exams(exam_id):
     from models.entities import Exam
     from forms import ExamForm
@@ -142,6 +149,23 @@ def delete_users(user_id):
     from models.auth import auth_delete_user
     return auth_delete_user(user)
 
+@main.route('/exams/<int:exam_id>/start', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@login_required
+def exams_start(exam_id):
+    import datetime
+    from models.entities import Exam, ExamQuestion
+    from forms import QuestionForm
 
+    opening_date = Exam.show_opening_date(exam_id)
 
+    if not str(datetime.date.today()) == str(opening_date):
+        flash('Exam is not open')
+        return redirect(url_for('main.exams'))
+    
+    form = QuestionForm()
 
+    exam = Exam.show_one(exam_id)
+    exam_questions = ExamQuestion.query.filter_by(exam_id=exam_id).all()    
+
+    #return str(exam)
+    return render_template('exam_start.html', exam=exam, exam_id=exam.id, exam_questions=exam_questions, form=form)
