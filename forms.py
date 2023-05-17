@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, BooleanField, RadioField, IntegerField, SubmitField, DateField
+from wtforms import StringField, PasswordField, SelectField, BooleanField, RadioField, IntegerField, SubmitField, DateField, TextAreaField
 from wtforms.validators import InputRequired, Length, Regexp, DataRequired
 
 class AccountRecoveryForm(FlaskForm):
@@ -59,17 +59,27 @@ class QuestionForm(FlaskForm):
     description = StringField(validators=[InputRequired()])
     level = SelectField('Select the Question Level', choices=level_choices)
     tags = StringField(validators=[InputRequired()])
+
     answer_type = SelectField('Select the Question Type', choices=answer_type_choices)
     answer1 = StringField()
     answer2 = StringField()
     answer3 = StringField()
     answer4 = StringField()
+
     single_right_answer = RadioField('Select the Right Answer', choices=answer_choices)
     true_or_false_answer = RadioField('Is the Answer', choices=true_or_false_choices)
+
     multiple_right_answer1 = BooleanField('Answer1')
     multiple_right_answer2 = BooleanField('Answer2')
     multiple_right_answer3 = BooleanField('Answer3')
     multiple_right_answer4 = BooleanField('Answer4')
+
+    multiple_right_answer = BooleanField('Answer')
+
+
+
+    open_answer = TextAreaField(validators=[InputRequired()])
+
     submit = SubmitField('Submit')
 
 class ExamForm(FlaskForm):
