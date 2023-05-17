@@ -7,6 +7,7 @@ from flask_mailing import Mail
 from views.main import main as view_main
 from views.error import error as view_error
 from views.auth import auth as view_auth
+from flask_caching import Cache
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -34,6 +35,7 @@ bootstrap = Bootstrap(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 mail = Mail(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 #define the log in view and help prevent user's sessions from being stolen
 login_manager.login_view = 'auth.login' 
