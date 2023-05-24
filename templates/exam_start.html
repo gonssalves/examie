@@ -97,33 +97,73 @@
         {{ form.submit(class='btn btn-secondary')}}
 
 <script>
-  // Função para atualizar a contagem regressiva
-  function updateCountdown() {
-    var countdownElement = document.getElementById('countdown');
-    var timeInSeconds = '{{ exam.execution_time }}' * 60;  // Converter minutos para segundos
+  var intervalId;  // Declarar a variável intervalId fora do escopo da função
 
-      var intervalId = setInterval(function() {
-      var hours = Math.floor(timeInSeconds / 3600);
-      var minutes = Math.floor((timeInSeconds % 3600) / 60);
-      var seconds = timeInSeconds % 60;
+// Função para atualizar a contagem regressiva
+function updateCountdown() {
+  var countdownElement = document.getElementById('countdown');
+  var timeInSeconds = '{{ exam.execution_time }}' * 60;  // Converter minutos para segundos
 
-      var formattedTime = hours.toString().padStart(2, '0') + ':' +
-                          minutes.toString().padStart(2, '0') + ':' +
-                          seconds.toString().padStart(2, '0');
-
-      countdownElement.textContent = formattedTime;
-
-      if (timeInSeconds <= 0) {
-        clearInterval(intervalId);
-        // Executar ação quando a contagem regressiva terminar
-      } else {
-        timeInSeconds--;
+  // Obter o valor da contagem regressiva da sessão
+  fetch('/get_countdown')
+    .then(response => response.json())
+    .then(data => {
+      if (data.countdown !== null) {
+        timeInSeconds = data.countdown;
       }
-    }, 1000);  // Atualizar a cada 1 segundo (1000 milissegundos)
-  }
+    });
 
-  // Chamar a função de atualização da contagem regressiva ao carregar a página
-  window.onload = updateCountdown;
+  intervalId = setInterval(function() {  // Atribuir o valor à variável intervalId
+    var hours = Math.floor(timeInSeconds / 3600);
+    var minutes = Math.floor((timeInSeconds % 3600) / 60);
+    var seconds = timeInSeconds % 60;
+
+    var formattedTime = hours.toString().padStart(2, '0') + ':' +
+                        minutes.toString().padStart(2, '0') + ':' +
+                        seconds.toString().padStart(2, '0');
+
+    countdownElement.textContent = formattedTime;
+
+    if (timeInSeconds <= 0) {
+      clearInterval(intervalId);
+      // Executar ação quando a contagem regressiva terminar
+      alert("I am an alert box!");
+    } else {
+      timeInSeconds--;
+    }
+
+    // Enviar o valor da contagem regressiva para o servidor
+    fetch('/update_countdown', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ countdown: timeInSeconds })
+    });
+  }, 1000);  // Atualizar a cada 1 segundo (1000 milissegundos)
+}
+
+function removeCountdown() {
+  // Parar a contagem regressiva
+  clearInterval(intervalId);
+
+  // Remover o valor da contagem regressiva da sessão no servidor
+  fetch('/remove_countdown', {
+    method: 'POST'
+  });
+}
+
+// Chamar a função de atualização da contagem regressiva ao carregar a página
+window.onload = updateCountdown;
+
+// Chamar a função de atualização da contagem regressiva ao carregar a página
+window.onload = function() {
+  updateCountdown();
+
+  // Adicionar evento de saída da página
+  window.addEventListener('unload', removeCountdown);
+};
+
 </script>
         
         
