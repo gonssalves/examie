@@ -86,7 +86,15 @@
                   <td>{{question.theme}}</td>
                   <td>{{question.description}}</td>
                   <td>{{question.level}}</td>
-                  <td>{{question.answer_type}}</td>
+                  {% if question.answer_type == 'tf' %}
+                    <td>True or False</td>
+                  {% elif question.answer_type == 'op' %}
+                    <td>Open Question</td>
+                  {% elif question.answer_type == 'sc' %}
+                    <td>Single Choice</td>
+                  {% elif question.answer_type == 'mc' %}
+                    <td>Multiple Choice</td>
+                  {% endif %}
                   <td>{{question.creation_date}}</td>
 
                   <td><button type="button" onclick="location.href='questions/{{question.id}}'" class="btn btn-primary">Edit</button></td>
