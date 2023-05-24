@@ -14,7 +14,7 @@ def admin_login_required():
                 # For example:
                 flash("You don't have permission to access this page")
                 return redirect(url_for('main.index'))
-                return "Unauthorizedd", 401
+                
         return wrapper
     return decorator
 
@@ -32,6 +32,5 @@ def admin_teacher_login_required():
                 # For example:
                 flash("You don't have permission to access this page")
                 return redirect(url_for('main.index'))
-                return "Unauthorizedd", 401
         return wrapper
     return decorator
