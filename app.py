@@ -7,6 +7,7 @@ from flask_mailing import Mail
 from views.main import main as view_main
 from views.error import error as view_error
 from views.auth import auth as view_auth
+from views.countdown import countdown as view_countdown
 from flask_caching import Cache
 import os
 
@@ -51,3 +52,5 @@ def load_user(user_id):
 app.register_blueprint(view_main)
 app.register_blueprint(view_error)
 app.register_blueprint(view_auth)
+app.register_blueprint(view_countdown)
+
