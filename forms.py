@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, BooleanField, RadioField, IntegerField, SubmitField, DateField, TextAreaField
+from wtforms import StringField, PasswordField, SelectField, BooleanField, RadioField, SubmitField, DateField, TextAreaField
 from wtforms.validators import InputRequired, Length, Regexp, DataRequired
+from datetime import date
 
 class AccountRecoveryForm(FlaskForm):
     #
@@ -83,6 +84,6 @@ class QuestionForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class ExamForm(FlaskForm):
-    opening_date = DateField('Opening Date', validators=[DataRequired()])
+    opening_date = DateField('Opening Date', validators=[DataRequired()], render_kw={'min': date.today().isoformat()})
     execution_time = StringField('Execution Time in Minutes', validators=[InputRequired()])    
     submit = SubmitField('Submit')
