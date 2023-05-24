@@ -5,16 +5,16 @@ import time
 def get_questions():
     from models.entities import Question
 
-    # Verifica se as questões estão armazenadas em cache
+    # verify if the questions are store are cached
     if cache.get('questions'):
-        # Questões em cache, retorna imediatamente
+        # questions are cached, returns immediately
         return cache.get('questions')
     
-    # Questões não estão em cache, cria um atraso de 5 segundos
-    time.sleep(5)
+    # questions are not cached, creates a 5 seconds delay
+    #time.sleep(5)
     
-    # Lógica para buscar as questões do banco de dados
-    questions = Question.query.all()
+    # get the questions from the database
+    questions = Question.show_all()
 
     for question in questions:
         question.user
