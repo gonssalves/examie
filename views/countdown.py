@@ -25,7 +25,7 @@ def get_countdown():
     countdown = session.get('countdown')
     return jsonify({'countdown': countdown})
 
-@countdown.route('/remove_countdown', methods=['POST'])
+@countdown.route('/remove_countdown', methods=['DELETE'])
 def remove_countdown():
     session.pop('countdown', None)
     return '', 200
