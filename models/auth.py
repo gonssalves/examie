@@ -338,6 +338,31 @@ def auth_delete_question(old_question):
     return redirect(url_for('main.questions'))
 
 def auth_edit_question(old_question):
+    print(str(request.form))
+    subject = request.form.get('subject')
+    theme = request.form.get('theme')
+    description = request.form.get('description')
+    level = request.form.get('level')
+    answer_type = request.form.get('answer_type')
+    tags = request.form.get('tags')
+
+    list_tags = tags.split()
+
+    if subject != old_question.subject:
+        old_question.subject = subject
+    if theme != old_question.theme:
+        old_question.theme = theme
+    if description != old_question.description:
+        old_question.description = description
+    if level != old_question.level:
+        old_question.level = level
+    if answer_type != old_question.answer_type:
+        old_question.answer_type = answer_type
+    if old_question.get_tags() == tags:
+        
+    
+    print(old_question.get_tags() == tags)
+    
     return 'feature not implemented yet'
 
 def auth_add_exam():
