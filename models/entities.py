@@ -72,7 +72,38 @@ class Question(db.Model):
     def show_all():
         ''' Return all the questions '''
         return Question.query.all()
+    
+    def get_tags(self):
+        temp = ''
+        for tag in self.tags:
+            temp += str(tag) + ' '
+        return temp
+    
+    def get_answer_tf(self):
+        for answer in self.answers:
+            if answer.question_id == self.id:
+                return bool(answer.correct)
+            
+    def get_answer_sc_mc(self):
+        l_answer = []
+        l_sc = []
+        l_mc = []
+
+        i = 0
+
+        for answer in self.answers:
+            if answer.question_id == self.id:
+                i += 1
+                l_answer.append(answer.answerr)
+                temp = str(answer.correct)
+                l_mc.append(temp.lower())
+                if answer.correct == True:
+                    l_sc.append(f'Answer{i}')
         
+        l_all = [l_answer, l_sc, l_mc]
+
+        return l_all
+    
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
