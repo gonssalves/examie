@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, session
+from flask import render_template, redirect, url_for
 from flask import Blueprint, request, flash
 from flask_login import login_required, current_user
 from login_required import admin_login_required, admin_teacher_login_required
@@ -18,7 +18,6 @@ main = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
  
-
 @main.route('/questions', methods=['GET', 'POST'])
 @login_required
 @admin_teacher_login_required()
@@ -56,12 +55,12 @@ def edit_questions(question_id):
     from forms import QuestionForm
 
     question = Question.show_one(question_id)
-    form = QuestionForm(obj=question)
+    form = QuestionForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST':
         from models.auth import auth_edit_question
         return auth_edit_question(question)
-    return render_template('edit_questions.html', form=form, question_id=question_id)
+    return render_template('edit_questions.html', form=form, question_id=question_id, question=question)
 
 
 @main.route('/exams', methods=['GET', 'POST', 'PUT', 'DELETE'])
