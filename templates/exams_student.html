@@ -70,7 +70,7 @@
             
             {% for exam in exams %}
                 {% for i in exam.classes_exams %}
-                  {% if i.id == class_id %}
+                  {% if i.school_class_id == class_id %}
                   <tr>
                       <td>{{exam.id}}</td>
                       <td>{{exam.creation_date}}</td>
