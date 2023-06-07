@@ -137,7 +137,9 @@ def exams_start(exam_id):
     exam = Exam.show_one(exam_id)
     exam_questions = ExamQuestion.query.filter_by(exam_id=exam_id).all()    
 
-    #return str(exam)
+    if request.method == 'POST':
+        from models.auth import auth_start_exam
+        return auth_start_exam(exam)
     return render_template('exam_start.html', exam=exam, exam_id=exam.id, exam_questions=exam_questions, form=form)
 
 
