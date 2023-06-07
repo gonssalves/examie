@@ -79,6 +79,11 @@ class Question(db.Model):
             temp += str(tag) + ' '
         return temp
     
+    def delete_tags(self):
+        for tag in self.tags:
+            db.session.delete(tag)
+        db.session.commit()
+    
     def get_answer_tf(self):
         for answer in self.answers:
             if answer.question_id == self.id:
@@ -88,19 +93,21 @@ class Question(db.Model):
         l_answer = []
         l_sc = []
         l_mc = []
+        l_ids = []
 
         i = 0
 
         for answer in self.answers:
             if answer.question_id == self.id:
                 i += 1
+                l_ids.append(answer.id)
                 l_answer.append(answer.answerr)
                 temp = str(answer.correct)
                 l_mc.append(temp.lower())
                 if answer.correct == True:
                     l_sc.append(f'Answer{i}')
         
-        l_all = [l_answer, l_sc, l_mc]
+        l_all = [l_answer, l_sc, l_mc, l_ids]
 
         return l_all
     
@@ -137,7 +144,6 @@ class Exam(db.Model):
     @staticmethod
     def show_one(exam_id):
         x = Exam.query.get(int(exam_id))
-        print(x.exam_questions)
         return Exam.query.get(int(exam_id))
     
     @staticmethod
@@ -149,6 +155,18 @@ class Exam(db.Model):
     def show_all():
         ''' Return all the questions '''
         return Exam.query.all()
+    
+    def questions_id(self):
+        questions = Question.show_all()
+        
+        questions_id = []
+
+        for e_q in self.exam_questions:
+            for question in questions:
+                if question.id == e_q.question_id:
+                    questions_id.append(question.id)
+        
+        return questions_id
     
 class ExamQuestion(db.Model):
     __tablename__ = 'exam_questions'
