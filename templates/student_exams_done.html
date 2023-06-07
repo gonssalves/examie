@@ -1,0 +1,196 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <title>Trepverter - Exam Application System</title>
+  <!-- The clever comeback or witty response that comes to mind too late, after the conversation has moved on.    -->
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="../static/assets/favicon.ico" />
+  <style>
+    .form-control {
+      display: block;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Trepverter</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('main.index')}}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('main.questions')}}">Questions</a>
+          </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="{{url_for('main.exams')}}">Exams</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('main.classes')}}">Classroom</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('main.users')}}">Users</a>
+          </li>
+        <li class="nav-item">
+          <a class="nav-link" style = "color: red" href="{{url_for('auth.logout')}}">Logout</a>
+        </li>
+        
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-16">
+        {% for message in get_flashed_messages() %}
+          <div class="alert alert-warning">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{ message }}
+          </div>
+        {% endfor %}
+
+        <h2>EXAM {{ exam_id }}</h2>
+          <h4><span id="countdown"></span></h4><br>
+          <form method="POST" action="{{ url_for('main.exams_start', exam_id=exam_id) }}">
+            {{ form.csrf_token }}
+           
+            {% for exam_question in exam_questions %}
+            <div style="border: solid black 1px;">
+              <br>
+              <h2>{{ loop.index }}º {{ exam_question.question_rel.description }}</h2>
+              <ul>
+                {% if exam_question.question_rel.answer_type == 'op' %}
+                    {% for answer in answers %}
+                        {% if answer.question_id  == exam_question.question_id and answer.exam_id == exam_id %}
+                        <textarea style="width: 1040px;" name="open_answer {{ exam_question.id }}" rows="4" cols="50">{{ answer.answerr }} </textarea>
+                        {% endif %}
+                    {% endfor %}
+                  
+                  <br><br>
+                {% else %}
+             
+                    {% for answer in exam_question.question_rel.answers %}
+                        {% if exam_question.question_rel.answer_type == 'tf' %}
+                            {% for a in answers %}
+                                {% if a.question_id == exam_question.question_id and a.exam_id == exam_id %}
+                                    {% if a.answerr == 'true' %}
+                                        {% if a.correct == 'true' %}
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="true" checked> <span style="color: green">True</span>
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="false"> False
+                                            <br><br>
+                                        {% else %}
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="true" checked> <span style="color: red">True</span>
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="false"> False
+                                            <br><br>
+                                        {% endif %}
+                                    {% else %}
+                                       {% if a.correct == 'true' %}
+                                       <input type="radio" name="answer {{ exam_question.id }}" value="false"> True
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="true" checked> <span style="color: green">False</span>
+                                            <br><br>
+                                        {% else %}
+                                        <input type="radio" name="answer {{ exam_question.id }}" value="false"> True
+                                            <input type="radio" name="answer {{ exam_question.id }}" value="true" checked> <span style="color: red">False</span>
+                                            <br><br>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                   
+
+                            {% elif exam_question.question_rel.answer_type == 'mc' %} 
+                                {% if answer.correct == True %}
+                                        {% if answer.answerr in l %}       
+                                            {% if l[answer.answerr] == 'true' %}
+                                            <ul>
+                                                <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}" checked> <span style="color: green"> {{ answer.answerr }}</span>
+                                            </ul>
+                                            {% else %}
+                                                <ul>
+                                                    <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}" checked> <span style="color: red"> {{ answer.answerr }}</span>
+                                                </ul>
+                                            {% endif %}
+                                        {% else %}
+                                            <ul>
+                                                <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}"> <b>{{ answer.answerr }}</b>
+                                            </ul>
+                                        {% endif %}
+                                        
+                                {% else %}
+                                    
+                                    {% if answer.answerr in l %} 
+                                        <ul>
+                                            <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}" checked> <span style="color: red"> {{ answer.answerr }}</span>
+                                        </ul>
+                                    {% else %}
+                                        <ul>
+                                            <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}"> {{ answer.answerr }}
+                                        </ul>
+                                    {% endif %}
+                                        
+                                {% endif %}
+                                        
+                                   
+                                   
+                                
+                            
+
+                            {% else %}
+                            {% for a in answers %}
+                                {% if a.question_id == exam_question.question_id and a.exam_id == exam_id %}
+                                    {% if a.answerr == answer.answerr %}
+                                        {% if a.correct == 'true' %}
+                                            <ul>
+                                                <input class="radio-color" type="radio" name="answer{{ exam_question.id }}" value="{{ answer.answerr }}" checked> <span style="color: green">{{ answer.answerr }}</span>
+                                            </ul>
+                                        {% else %}
+                                            <ul>
+                                                <input class="radio-color" type="radio" name="answer{{ exam_question.id }}" value="{{ answer.answerr }}" checked> <span style="color: red">{{ answer.answerr }}</span>
+                                            </ul>
+                                        {% endif %}
+                                    {% else %}
+                                    <ul>
+                                        <input type="radio" name="answer{{ exam_question.id }}" value="{{ answer.answerr }}"> {{ answer.answerr }}
+                                    </ul>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% endif %}
+                
+                        {% endfor %}
+                        {% endif %}
+              </ul>
+            </div>
+            {% endfor %}
+              <br>
+
+            </form>
+
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+    $("#form_edit input[name='open_answer 39']").val("aa");
+</script>
+        
+        

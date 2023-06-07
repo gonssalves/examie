@@ -32,6 +32,9 @@
           <a class="nav-link" href="{{url_for('main.exams')}}">Exams</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{url_for('main.classes')}}">Classroom</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="{{url_for('main.users')}}">Users</a>
           </li>
         <li class="nav-item">
@@ -64,16 +67,26 @@
             </thead>
     
             <tbody>
-    
+            
             {% for exam in exams %}
-                <tr>
-                    <td>{{exam.id}}</td>
-                    <td>{{exam.creation_date}}</td>
-                    <td>{{exam.opening_date}}</td>
-                    <td>{{exam.execution_time}}</td>
-                    <td>{{exam.questions_amount}}</td>
-                    <td><button type="button" onclick="location.href='exams/{{exam.id}}/start'" class="btn btn-success">Start</button></td>
-                </tr>
+                {% for i in exam.classes_exams %}
+                  {% if i.id == class_id %}
+                  <tr>
+                      <td>{{exam.id}}</td>
+                      <td>{{exam.creation_date}}</td>
+                      <td>{{exam.opening_date}}</td>
+                      <td>{{exam.execution_time}}</td>
+                      <td>{{exam.questions_amount}}</td>
+                      {% if exam.status == 'open' %}
+                        <td><button type="button" onclick="location.href='exams/{{exam.id}}/start'" class="btn btn-success">Start</button></td>
+                      {% elif exam.status == 'closed' %}
+                        <td><button type="button" class="btn btn-danger">Closed</button></td>
+                      {% endif %}
+                  </tr>
+                  {% endif %}
+                  
+                  {% endfor %}
+       
             {% endfor %}
             
         

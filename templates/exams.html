@@ -32,6 +32,9 @@
           <a class="nav-link" href="{{url_for('main.exams')}}">Exams</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{url_for('main.classes')}}">Classroom</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="{{url_for('main.users')}}">Users</a>
           </li>
         <li class="nav-item">
@@ -67,6 +70,7 @@
             <tbody>
     
             {% for exam in exams %}
+              {% if exam.user_id == user.id %}
                 <tr>
                     <td>{{exam.id}}</td>
                     <td>{{exam.user.id}}</td>
@@ -77,6 +81,7 @@
                     <td><button type="button" onclick="location.href='exams/{{exam.id}}'" class="btn btn-primary">Edit</button></td>
                     <td><button data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-danger" data-exam-id="{{ exam.id }}">Delete</button></td>
                 </tr>
+                {% endif %}
             {% endfor %}
             
         
@@ -143,8 +148,15 @@
           {% endfor %}
           </div>
           
+          <label for="classroom">Choose a classroom:</label> <br>
+          <select name="classroom">
+            {% for classroom in user.classrooms %}
+              <option value={{classroom.id}}>{{ classroom.name }}</option>
+            {% endfor %}
+          </select>
+
           <br>
-          
+          <br>
           <div>
             {{ form.submit(class='btn btn-secondary')}}
           </div>

@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     #create the user table
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    real_name = db.Column(db.String())
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(), nullable=False)
@@ -28,6 +29,9 @@ class User(db.Model, UserMixin):
     questions = db.relationship('Question', backref='user')
     exams = db.relationship('Exam', backref='user')
     student_answers = db.relationship('StudentAnswer', backref='user')
+    classrooms = db.relationship('SchoolClass', backref='user')
+    classroom_student = db.relationship('SchoolClassStudent', backref='user')
+    student_grades = db.relationship('StudentGrade', backref='user')
 
     def __repr__(self):
         return f'{self.username}'
@@ -40,6 +44,9 @@ class User(db.Model, UserMixin):
     @staticmethod
     def show_one(user_id):
         return User.query.get(int(user_id))
+    
+    # def get_student(self):
+
     
     def verify_password(self, password):
         ''' Use hashing to verify if the password passed through form is correct'''
@@ -61,6 +68,7 @@ class Question(db.Model):
     exam_questions_rel = db.relationship('ExamQuestion', backref='question_rel')    # tags = db.relationship('Tag', backref='question')
     # answers = db.relationship('Answer', backref='question')
     # exam_questions = db.relationship('ExamQuestion', backref='question_rel')
+   
 
     def __repr__(self):
         return f'{self.theme}'
@@ -142,7 +150,8 @@ class Exam(db.Model):
 
     exam_questions = db.relationship('ExamQuestion', back_populates='exam')
     student_answerss = db.relationship('StudentAnswer', backref='exam')
-
+    classes_exams = db.relationship('SchoolClassExam', backref='exam')
+    
     @staticmethod
     def show_one(exam_id):
         x = Exam.query.get(int(exam_id))
@@ -185,7 +194,72 @@ class StudentAnswer(db.Model):
     __tablename__ = 'student_answers'
     id = db.Column(db.Integer, primary_key=True)
     answerr = db.Column(db.String(), nullable=False)
-    #correct = db.Column(db.Boolean())
-    #question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    correct = db.Column(db.String())
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    def magic(exam_id, question_id):
+        answers = StudentAnswer.query.all()
+
+        l = {}
+        for answer in answers:
+            if answer.exam_id == exam_id and  answer.question_id == question_id:
+                key = answer.answerr
+                l[key] = answer.correct
+            
+        return l
+
+class SchoolClass(db.Model):
+    __tablename__ = 'school_classes'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    invite_code = db.Column(db.String(), nullable=False)
+    creation_date = db.Column(db.Date, nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    school_class_students = db.relationship('SchoolClassStudent', backref='schol_classes')
+
+    def show_class(user):
+        all = SchoolClass.query.all()
+        for i in all:
+            if i.teacher_id == user.id:
+                print(i)
+                return int(i.id)
+        return 'aaa'
+    
+    def show_one(class_name):
+        return SchoolClass.query.filter_by(name=class_name).first()
+
+    
+class SchoolClassStudent(db.Model):
+    __tablename__ = 'school_classes_students'
+    id = db.Column(db.Integer, primary_key=True)
+    school_class_id = db.Column(db.Integer, db.ForeignKey('school_classes.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'{self.school_class_id}|'
+    
+    def show_class(user):
+        all = SchoolClassStudent.query.all()
+        for i in all:
+            if i.student_id == user.id:
+                return int(i.id)
+        return 'aaa'
+    
+class SchoolClassExam(db.Model):
+    __tablename__ = 'school_classes_exams'
+    id = db.Column(db.Integer, primary_key=True)
+    school_class_id = db.Column(db.Integer, db.ForeignKey('school_classes.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))
+
+    def __repr__(self):
+        return f'{self.school_class_id}'
+
+class StudentGrade(db.Model):
+    __tablename__ = 'student_grades'
+    id = db.Column(db.Integer, primary_key=True)
+    grade = db.Column(db.String())
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))

@@ -22,16 +22,16 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
-        <li class="nav-item  active">
+        <li class="nav-item">
           <a class="nav-link" href="{{url_for('main.index')}}">Home</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{url_for('main.questions')}}">Questions</a>
-          </li>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('main.exams')}}">Exams</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="{{url_for('main.classes')}}">Classroom</a>
         </li>
         <li class="nav-item">
@@ -48,13 +48,80 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-6">
-        <h2>HOME</h2>
         {% for message in get_flashed_messages() %}
         <div class="alert alert-warning">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             {{ message }}
         </div>
-      {% endfor %}
+        {% endfor %}
+
+        
+        <h2>CLASSROOM - {{ classroom.name }}</h2>
+        
+        <hr>
+     
+        <h4>EXAMS</h4>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">EXAM ID</th>
+                    <th scope="col">OPENING DATE</th>
+                    <th scope="col">EXECUTION TIME</th>
+                    <th scope="col">QUESTIONS AMOUNT</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+    
+                {% for exam in exams %}
+
+                  {% for i in exam.classes_exams %}
+                    {% if i.id == class_id %}
+                      <tr>
+                          <td>{{exam.id}}</td>
+                          <td>{{exam.opening_date}}</td>
+                          <td>{{exam.execution_time}}</td>
+                          <td>{{exam.questions_amount}}</td>
+                    
+                      </tr>
+                    {% endif %}
+                    
+                    {% endfor %}
+       
+            {% endfor %}
+            
+        
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h4>STUDENTS</h4>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">USER ID</th>
+                    <th scope="col">USERNAME</th>
+                    <th scope="col">EMAIL</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+    
+            {{ classroom.name }}
+            <br>
+            {% for student in classroom.school_class_students %}
+                {{ student }}
+                {% set user = User.show_one(student.student_id) %}
+                <td>{{user.id}}</td>
+                <td>{{user.username}}</td>
+                <td>{{user.email}}</td>
+                <td><button type="button" onclick="location.href='classes/{{user.id}}/exams'" class="btn btn-primary">View Exams</button></td>
+            {% endfor %}
+        
+            </tbody>
+        </table>
+
       </div>
     </div>
   </div>

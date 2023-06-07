@@ -87,3 +87,8 @@ class ExamForm(FlaskForm):
     opening_date = DateField('Opening Date', validators=[DataRequired()], render_kw={'min': date.today().isoformat()})
     execution_time = StringField('Execution Time in Minutes', validators=[InputRequired()])    
     submit = SubmitField('Submit')
+
+class ClassroomForm(FlaskForm):
+    name = StringField('Classroom name', validators=[InputRequired()])
+    submit = SubmitField('Submit')
+

@@ -1,4 +1,4 @@
-from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion, StudentAnswer
+from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion, StudentAnswer, SchoolClassExam, SchoolClass
 from flask import request, redirect, url_for, flash, session
 from flask_login import login_user, current_user
 from app import db, bcrypt, mail, cache
@@ -486,6 +486,7 @@ def auth_edit_question(old_question_id):
     return redirect(url_for('main.questions'))
     
 def auth_add_exam():
+    #return str(request.form)
     if not 'question_id' in request.form:
         req = request.form.copy()
         req.pop('csrf_token')
@@ -498,18 +499,22 @@ def auth_add_exam():
     questions = request.form.getlist('question_id')
     questions_amount = len(questions)
 
+    classroom_id = request.form.get('classroom')
+
     creation_date = datetime.date.today()
 
     opening_date = datetime.datetime.strptime(opening_date, '%Y-%m-%d').date()
 
     new_exam = Exam(creation_date=creation_date, opening_date=opening_date, execution_time=execution_time, questions_amount=questions_amount, user_id=current_user.id)
     
+    new_exam_class = SchoolClassExam(school_class_id=int(classroom_id), exam=new_exam)
+
     for question in questions:
         new_exam_question = ExamQuestion(exam=new_exam, question_id=int(question))
         db.session.add(new_exam_question)
 
     try:
-        db.session.add_all([new_exam, new_exam_question])
+        db.session.add_all([new_exam, new_exam_question, new_exam_class])
     except:
         flash('Unable to create exam, please try again later')
         return redirect(url_for('main.exams'))
@@ -587,11 +592,30 @@ def auth_start_exam(exam):
             new_student_answer = StudentAnswer(answerr=v, exam_id=exam.id, user_id=current_user.id)
             db.session.add(new_student_answer)
 
+    exam.status = 'closed'
 
     db.session.commit()
-
-
-    return 'tô doido, tô doido'
-    
+ 
     flash('Exam sended')
     return redirect(url_for('main.exams'))
+
+def auth_add_classroom():
+    print(request.form)
+    name = request.form.get('name')
+
+    invite_code = f'{name.lower()}{name[-1].lower()}'
+    
+    creation_date = datetime.date.today()
+
+    new_classroom = SchoolClass(name=name, invite_code=invite_code, creation_date=creation_date, teacher_id=current_user.id)
+
+    try:
+        db.session.add(new_classroom)
+        db.session.commit()
+    except:
+        flash('Unable to create classroom, please try again later')
+        return redirect(url_for('main.classes'))
+    
+    flash('Classroom created')
+    return redirect(url_for('main.classes'))
+    return 'aaaa'
