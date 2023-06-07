@@ -24,8 +24,11 @@ def index():
 def questions():
     from cache import get_questions
     from forms import QuestionForm
+    from models.entities import Question
 
-    all_questions = get_questions()
+    #all_questions = get_questions()
+    all_questions = Question.show_all()
+
     form = QuestionForm()
 
     if request.method == 'POST':
@@ -59,7 +62,7 @@ def edit_questions(question_id):
 
     if request.method == 'POST':
         from models.auth import auth_edit_question
-        return auth_edit_question(question)
+        return auth_edit_question(question_id)
     return render_template('edit_questions.html', form=form, question_id=question_id, question=question)
 
 
@@ -100,16 +103,20 @@ def delete_exams(exam_id):
 @login_required
 @admin_teacher_login_required()
 def edit_exams(exam_id):
-    from models.entities import Exam
+    from models.entities import Exam, Question
     from forms import ExamForm
 
     exam = Exam.show_one(exam_id)
-    form = ExamForm(obj=exam)
+    all_questions = Question.show_all()
+    form = ExamForm()
+
+    questions_id = exam.questions_id()
+
 
     if form.validate_on_submit():
         from models.auth import auth_edit_exam
         return auth_edit_exam(exam)
-    return render_template('edit_exams.html', form=form, exam_id=exam_id)
+    return render_template('edit_exams.html', form=form, exam_id=exam_id, exam=exam, all_questions=all_questions, questions_id=questions_id)
 
 
 @main.route('/exams/<int:exam_id>/start', methods=['GET', 'POST', 'PUT', 'DELETE'])
