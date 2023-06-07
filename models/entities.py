@@ -27,6 +27,7 @@ class User(db.Model, UserMixin):
 
     questions = db.relationship('Question', backref='user')
     exams = db.relationship('Exam', backref='user')
+    student_answers = db.relationship('StudentAnswer', backref='user')
 
     def __repr__(self):
         return f'{self.username}'
@@ -139,8 +140,9 @@ class Exam(db.Model):
     questions_amount = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    exam_questions = db.relationship('ExamQuestion', back_populates='exam')     
-    
+    exam_questions = db.relationship('ExamQuestion', back_populates='exam')
+    student_answerss = db.relationship('StudentAnswer', backref='exam')
+
     @staticmethod
     def show_one(exam_id):
         x = Exam.query.get(int(exam_id))
@@ -178,3 +180,12 @@ class ExamQuestion(db.Model):
 
     def __repr__(self):
         return f'{self.exam_id} {self.question_id}'
+
+class StudentAnswer(db.Model):
+    __tablename__ = 'student_answers'
+    id = db.Column(db.Integer, primary_key=True)
+    answerr = db.Column(db.String(), nullable=False)
+    #correct = db.Column(db.Boolean())
+    #question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('exams.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
