@@ -308,9 +308,8 @@ def auth_add_question():
             return redirect(url_for('main.questions'))
 
     elif answer_type == 'tf':
-        true_or_false_answer = request.form.get('true_or_false_answer') 
-        true_or_false_answer = bool(true_or_false_answer)
-
+        true_or_false_answer = (True if request.form.get('true_or_false_answer') == 'True' else False)
+    
         new_answer = Answer(answerr='tf', correct=true_or_false_answer, question=new_question)
 
         try:
@@ -337,8 +336,8 @@ def auth_delete_question(old_question):
     flash('Question deleted')
     return redirect(url_for('main.questions'))
 
-def auth_edit_question(old_question):
-    print(str(request.form))
+def auth_edit_question(old_question_id):
+    print(str(request.form), '\n')
     subject = request.form.get('subject')
     theme = request.form.get('theme')
     description = request.form.get('description')
@@ -348,23 +347,144 @@ def auth_edit_question(old_question):
 
     list_tags = tags.split()
 
-    if subject != old_question.subject:
-        old_question.subject = subject
-    if theme != old_question.theme:
-        old_question.theme = theme
-    if description != old_question.description:
-        old_question.description = description
-    if level != old_question.level:
-        old_question.level = level
-    if answer_type != old_question.answer_type:
-        old_question.answer_type = answer_type
-    if old_question.get_tags() == tags:
-        
-    
-    print(old_question.get_tags() == tags)
-    
-    return 'feature not implemented yet'
+    old_question = Question.query.get(int(old_question_id))
 
+    old_question.subject = subject
+    old_question.theme = theme
+    old_question.description = description
+    old_question.level = level
+    
+    if old_question.get_tags() != tags:
+        for tag in list_tags:
+            new_tag = Tag(tag_name=tag, question=old_question)
+            db.session.add(new_tag)
+        old_question.delete_tags()
+    
+    if answer_type == 'mc': 
+        answer1 = request.form.get('answer1')
+        answer2 = request.form.get('answer2')
+        answer3 = request.form.get('answer3')
+        answer4 = request.form.get('answer4')
+
+        answer1_correct = (True if request.form.get('multiple_right_answer1') else False)
+        answer2_correct = (True if request.form.get('multiple_right_answer2') else False)
+        answer3_correct = (True if request.form.get('multiple_right_answer3') else False)
+        answer4_correct = (True if request.form.get('multiple_right_answer4') else False)
+
+        if answer_type == old_question.answer_type:
+            answers = old_question.get_answer_sc_mc()
+            answers_temp = [answer1, answer2, answer3, answer4]
+            
+            answer_1 = Answer.query.get(int(answers[3][0]))
+            answer_2 = Answer.query.get(int(answers[3][1]))
+            answer_3 = Answer.query.get(int(answers[3][2]))
+            answer_4 = Answer.query.get(int(answers[3][3]))
+
+            if answers[0] == answers_temp:
+                answer_1.correct = answer1_correct
+                answer_2.correct = answer2_correct
+                answer_3.correct = answer3_correct
+                answer_4.correct = answer4_correct
+
+            else:
+                answer_1.answerr = answer1
+                answer_2.answerr = answer2
+                answer_3.answerr = answer3
+                answer_4.answerr = answer4
+                
+                answer_1.correct = answer1_correct
+                answer_2.correct = answer2_correct
+                answer_3.correct = answer3_correct
+                answer_4.correct = answer4_correct
+
+            db.session.add_all([answer_1, answer_2, answer_3, answer_4])
+        else:
+            new_answer1 = Answer(answerr=answer1, correct=answer1_correct, question=old_question)
+            new_answer2 = Answer(answerr=answer2, correct=answer2_correct, question=old_question)
+            new_answer3 = Answer(answerr=answer3, correct=answer3_correct, question=old_question)
+            new_answer4 = Answer(answerr=answer4, correct=answer4_correct, question=old_question)
+
+            db.session.add_all([new_answer1, new_answer2, new_answer3, new_answer4])
+
+    elif answer_type == 'sc':
+        answer1 = request.form.get('answer1')
+        answer2 = request.form.get('answer2')
+        answer3 = request.form.get('answer3')
+        answer4 = request.form.get('answer4')
+
+        answer_sc = request.form.get('single_right_answer')
+
+        answer1_correct = (True if answer_sc == 'Answer1' else False)
+        answer2_correct = (True if answer_sc == 'Answer2' else False)
+        answer3_correct = (True if answer_sc == 'Answer3' else False)
+        answer4_correct = (True if answer_sc == 'Answer4' else False)
+
+        if answer_type == old_question.answer_type:
+            answers = old_question.get_answer_sc_mc()
+            
+            answer_1 = Answer.query.get(int(answers[3][0]))
+            answer_2 = Answer.query.get(int(answers[3][1]))
+            answer_3 = Answer.query.get(int(answers[3][2]))
+            answer_4 = Answer.query.get(int(answers[3][3]))
+
+            answers_temp = [answer1, answer2, answer3, answer4]
+            
+            if answers[0] == answers_temp:
+                answer_1.correct = answer1_correct
+                answer_2.correct = answer2_correct
+                answer_3.correct = answer3_correct
+                answer_4.correct = answer4_correct
+
+            else:
+                answer_1.answerr = answer1
+                answer_2.answerr = answer2
+                answer_3.answerr = answer3
+                answer_4.answerr = answer4
+                
+                answer_1.correct = answer1_correct
+                answer_2.correct = answer2_correct
+                answer_3.correct = answer3_correct
+                answer_4.correct = answer4_correct
+
+            db.session.add_all([answer_1, answer_2, answer_3, answer_4])
+
+        else:
+            new_answer1 = Answer(answerr=answer1, correct=answer1_correct, question=old_question)
+            new_answer2 = Answer(answerr=answer2, correct=answer2_correct, question=old_question)
+            new_answer3 = Answer(answerr=answer3, correct=answer3_correct, question=old_question)
+            new_answer4 = Answer(answerr=answer4, correct=answer4_correct, question=old_question)
+
+            db.session.add_all([new_answer1, new_answer2, new_answer3, new_answer4])
+
+
+    elif answer_type == 'tf':
+        true_or_false_answer = (True if request.form.get('true_or_false_answer') == 'True' else False)
+    
+        answers = old_question.get_answer_sc_mc()
+        
+        if answer_type == old_question.answer_type:
+            answer_id = str(answers[3][0])
+
+            answer = Answer.query.get(int(answer_id))
+            answer.correct = true_or_false_answer
+
+            db.session.add(answer)
+
+        else:
+            new_answer = Answer(answerr='tf', correct=true_or_false_answer, question=old_question)
+            db.session.add(new_answer)
+
+
+    old_question.answer_type = answer_type
+
+    #return 'foda-se?'
+
+    db.session.add(old_question)    
+    db.session.commit()
+
+    flash('Question modified')
+    return redirect(url_for('main.questions'))
+    
 def auth_add_exam():
     if not 'question_id' in request.form:
         req = request.form.copy()
@@ -382,7 +502,6 @@ def auth_add_exam():
 
     opening_date = datetime.datetime.strptime(opening_date, '%Y-%m-%d').date()
 
-    
     new_exam = Exam(creation_date=creation_date, opening_date=opening_date, execution_time=execution_time, questions_amount=questions_amount, user_id=current_user.id)
     
     for question in questions:
@@ -411,3 +530,46 @@ def auth_delete_exam(old_exam):
     
     flash('Exam deleted')
     return redirect(url_for('main.exams'))
+
+def auth_edit_exam(old_exam):
+    print(request.form, '/n\n')
+    if not 'question_id' in request.form:
+        req = request.form.copy()
+        req.pop('csrf_token')
+
+        flash('Select at least one question')
+        return redirect(url_for('main.exams', **req)) 
+
+    opening_date = request.form.get('opening_date')
+    execution_time = request.form.get('execution_time')
+    questions_id = request.form.getlist('question_id')
+    
+    questions_amount = len(questions_id)
+
+    opening_date = datetime.datetime.strptime(opening_date, '%Y-%m-%d').date()
+
+    old_exam.opening_date = opening_date
+    old_exam.execution_time = execution_time
+    old_exam.questions_amount = questions_amount
+    
+    
+    all_exam_questions = ExamQuestion.query.all()
+    
+    for exam_question in all_exam_questions:
+        if exam_question.exam_id == old_exam.id:
+            db.session.delete(exam_question)
+
+    for idd in questions_id:
+        new_exam_question = ExamQuestion(exam=old_exam, question_id=int(idd))
+        db.session.add(new_exam_question)
+    
+    try:
+        db.session.commit()
+    except:
+        flash('Unable to modify exam, please try again later')
+        return redirect(url_for('main.exams'))
+    
+    flash('Exam modified')
+    return redirect(url_for('main.exams'))
+
+    
