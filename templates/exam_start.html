@@ -65,29 +65,35 @@
           <h4><span id="countdown"></span></h4><br>
           <form method="POST" action="{{ url_for('main.exams_start', exam_id=exam_id) }}">
             {{ form.csrf_token }}
+           
             {% for exam_question in exam_questions %}
             <div style="border: solid black 1px;">
               <br>
               <h2>{{ loop.index }}º {{ exam_question.question_rel.description }}</h2>
               <ul>
                 {% if exam_question.question_rel.answer_type == 'op' %}
-                  {{ form.open_answer(style="width: 1040px;", cols="30", rows="5") }}
+                
+                  <textarea style="width: 1040px;" name="open_answer {{ exam_question.id }}" rows="4" cols="50">
+
+                  </textarea>
                   <br><br>
                 {% else %}
+             
                   {% for answer in exam_question.question_rel.answers %}
                     {% if exam_question.question_rel.answer_type == 'tf' %}
-                      <input type="radio" name="answer{{ exam_question.id }}" value="true"> True
-                      <input type="radio" name="answer{{ exam_question.id }}" value="false"> False
+                      <input type="radio" name="answer {{ exam_question.id }}" value="true"> True
+                      <input type="radio" name="answer {{ exam_question.id }}" value="false"> False
                       <br><br>
                     {% elif exam_question.question_rel.answer_type == 'mc' %}
                       <ul>
-                        {{ form.multiple_right_answer(value="true")}} {{ answer.answerr }}
+                        <input type="checkbox" name="multiple_right_answer" value="{{ answer.answerr }}"> {{ answer.answerr }}
                       </ul>
                     {% else %}
                       <ul>
-                        <input type="radio" name="answer{{ exam_question.id }}" value="{{ answer.id }}"> {{ answer.answerr }}
+                        <input type="radio" name="answer{{ exam_question.id }}" value="{{ answer.answerr }}"> {{ answer.answerr }}
                       </ul>
                     {% endif %}
+          
                   {% endfor %}
                 {% endif %}
               </ul>
