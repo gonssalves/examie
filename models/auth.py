@@ -1,4 +1,4 @@
-from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion
+from models.entities import User, Role, Answer, Tag, Question, Exam, ExamQuestion, StudentAnswer
 from flask import request, redirect, url_for, flash, session
 from flask_login import login_user, current_user
 from app import db, bcrypt, mail, cache
@@ -572,4 +572,26 @@ def auth_edit_exam(old_exam):
     flash('Exam modified')
     return redirect(url_for('main.exams'))
 
+def auth_start_exam(exam):
+    temp = request.form.getlist('multiple_right_answer')
+    request_copy = request.form.copy()
+
+    request_copy.pop('csrf_token')
+    request_copy.pop('submit')
+
+    for k, v in request.form.items():
+        if k == 'csrf_token' or k == 'submit':
+            pass
+        else:
+            #print(key, value)
+            new_student_answer = StudentAnswer(answerr=v, exam_id=exam.id, user_id=current_user.id)
+            db.session.add(new_student_answer)
+
+
+    db.session.commit()
+
+
+    return 'tô doido, tô doido'
     
+    flash('Exam sended')
+    return redirect(url_for('main.exams'))
