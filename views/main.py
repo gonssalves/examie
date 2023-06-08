@@ -129,9 +129,7 @@ def exams_start(exam_id):
 
     opening_date = Exam.show_opening_date(exam_id)
 
-    if not str(datetime.date.today()) == str(opening_date):
-        flash('Exam is not open')
-        return redirect(url_for('main.exams'))
+    
     
     form = QuestionForm()
 
